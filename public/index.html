@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MedDeck</title>
+  <meta name="description" content="MedDeck: smarter medical study decks that help you learn faster and remember longer.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="#top" aria-label="MedDeck home">
+        <img class="mark" src="logo-mark.svg" alt="">
+        <span>Med<span class="deck">Deck</span></span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#faq">FAQ</a>
+        <a class="btn btn-small" href="#cta">Get started</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow">Study smarter, not longer</p>
+          <h1>Your whole medical curriculum, <span class="accent">one deck at a time.</span></h1>
+          <p class="lead">MedDeck turns dense clinical material into focused, bite-sized decks, then schedules every review so what you learn actually sticks.</p>
+          <div class="actions">
+            <a class="btn" href="#cta">Get early access</a>
+            <a class="btn btn-ghost" href="#how">See how it works</a>
+          </div>
+          <ul class="trust">
+            <li>Spaced repetition built in</li>
+            <li>Works on any device</li>
+            <li>Free to try</li>
+          </ul>
+        </div>
+
+        <div class="hero-art" aria-hidden="true">
+          <div class="card card-3"></div>
+          <div class="card card-2"></div>
+          <div class="card card-1">
+            <span class="tag">Cardiology</span>
+            <p class="q">Which artery most commonly supplies the SA node?</p>
+            <div class="answer">Right coronary artery <small>(~60%)</small></div>
+            <div class="rate">
+              <span>Again</span><span>Good</span><span class="on">Easy</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="container stats-inner">
+        <div><strong>10 min</strong><span>a day is enough to build a habit</span></div>
+        <div><strong>Every topic</strong><span>organised into decks you can share</span></div>
+        <div><strong>Zero clutter</strong><span>just the next card that matters</span></div>
+      </div>
+    </section>
+
+    <section id="features" class="section">
+      <div class="container">
+        <h2>Built for the way clinicians learn</h2>
+        <p class="section-lead">Everything you need to go from lecture notes to exam-ready recall.</p>
+        <div class="grid">
+          <article class="feature">
+            <div class="icon">
+              <svg viewBox="0 0 24 24"><path d="M12 8v4l3 2M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg>
+            </div>
+            <h3>Spaced repetition</h3>
+            <p>Reviews arrive right before you'd forget, so your time goes to the cards that need it most.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="7" width="14" height="12" rx="2"/><path d="M7 4h12a2 2 0 0 1 2 2v10"/></svg>
+            </div>
+            <h3>Organised decks</h3>
+            <p>Group cards by system, rotation or exam. Nest decks, tag topics and find anything in seconds.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">
+              <svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>
+            </div>
+            <h3>Progress you can see</h3>
+            <p>Track streaks, retention and weak spots so you always know where to focus next.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">
+              <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 14.3c.6-.2 1.3-.3 2-.3 2.2 0 4 1.8 4 4"/></svg>
+            </div>
+            <h3>Share with your cohort</h3>
+            <p>Build decks together and pass on the ones that helped you, so nobody starts from scratch.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">
+              <svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
+            </div>
+            <h3>Study anywhere</h3>
+            <p>Between patients, on the train or in the library. Your decks follow you on every device.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">
+              <svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+            </div>
+            <h3>Private by default</h3>
+            <p>Your decks and study data belong to you. Share only what you choose to.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="section alt">
+      <div class="container">
+        <h2>How it works</h2>
+        <p class="section-lead">From first card to long-term memory in three steps.</p>
+        <ol class="steps">
+          <li>
+            <span class="num">1</span>
+            <h3>Build your deck</h3>
+            <p>Create cards or import material from your notes and courses.</p>
+          </li>
+          <li>
+            <span class="num">2</span>
+            <h3>Study daily</h3>
+            <p>Answer a short session of due cards and rate how well you recalled each one.</p>
+          </li>
+          <li>
+            <span class="num">3</span>
+            <h3>Remember for good</h3>
+            <p>MedDeck adapts the schedule to you, so knowledge is ready on exam day and on the ward.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="faq" class="section">
+      <div class="container narrow">
+        <h2>Questions, answered</h2>
+        <details>
+          <summary>Who is MedDeck for?</summary>
+          <p>Medical, nursing and allied health students, and any clinician who wants to keep their knowledge sharp.</p>
+        </details>
+        <details>
+          <summary>How much does it cost?</summary>
+          <p>You can start for free. Pricing details will be announced before launch.</p>
+        </details>
+        <details>
+          <summary>Does it work offline?</summary>
+          <p>Offline study is on our roadmap so you can review anywhere, connected or not.</p>
+        </details>
+        <details>
+          <summary>Is this medical advice?</summary>
+          <p>No. MedDeck is a study tool and is not a substitute for clinical judgement or official guidelines.</p>
+        </details>
+      </div>
+    </section>
+
+    <section id="cta" class="cta">
+      <div class="container cta-inner">
+        <h2>Ready to make it stick?</h2>
+        <p>Join the early access list and be first to try MedDeck.</p>
+        <form class="signup" novalidate>
+          <label class="sr-only" for="email">Email address</label>
+          <input id="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+          <button class="btn btn-light" type="submit">Notify me</button>
+        </form>
+        <p class="form-msg" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>&copy; <span id="year">2026</span> MedDeck. All rights reserved.</span>
+      <span>For education only. Not medical advice.</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
