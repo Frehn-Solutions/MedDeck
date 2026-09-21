@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign up | MedDeck</title>
+  <meta name="description" content="Create your MedDeck account.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <!-- Google Fonts (Montserrat), the same font as the rest of the site -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Shared site styles first, then the sign-in / sign-up card styles -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="auth.css">
+</head>
+<body>
+  <!-- Minimal header: just the logo, linking home -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="/" aria-label="MedDeck home">
+        <img class="mark" src="logo-mark.svg" alt="">
+        <span>Med<span class="deck">Deck</span></span>
+      </a>
+    </div>
+  </header>
+
+  <main class="auth">
+    <div class="auth-card">
+      <h1>Create your account</h1>
+      <p class="auth-lead">Start building smarter medical decks.</p>
+
+      <!-- novalidate: js/signup.js does the checking so messages match the site's style -->
+      <form id="signup-form" novalidate>
+        <label for="name">Full name <span class="opt">(optional)</span></label>
+        <input id="name" name="name" type="text" autocomplete="name">
+
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+
+        <!-- autocomplete="new-password" lets password managers offer to generate a password -->
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required aria-describedby="pw-hint">
+        <small id="pw-hint">At least 8 characters.</small>
+
+        <label for="confirm">Confirm password</label>
+        <input id="confirm" name="confirm" type="password" autocomplete="new-password" required>
+
+        <!-- Must be ticked to sign up: the educational-use disclaimer required by the project plan -->
+        <label class="check">
+          <input id="terms" name="terms" type="checkbox" required>
+          <span>I understand MedDeck is for educational purposes only and is not a source of clinical guidance.</span>
+        </label>
+
+        <button class="btn" id="submit" type="submit">Sign up</button>
+        <!-- Status / error text is written here; aria-live lets screen readers announce it -->
+        <p class="auth-msg" id="msg" role="status" aria-live="polite"></p>
+      </form>
+
+      <p class="auth-alt">Already have an account? <a href="login.html">Log in</a></p>
+    </div>
+  </main>
+
+  <!-- Order matters: config.js and the Supabase library define globals that js/signup.js reads. -->
+  <script src="config.js"></script>
+  <script src="vendor/supabase.js"></script>
+  <script type="module" src="js/signup.js"></script>
+</body>
+</html>

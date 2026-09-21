@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in | MedDeck</title>
+  <meta name="description" content="Log in to your MedDeck account.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <!-- Google Fonts (Montserrat), the same font as the rest of the site -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Shared site styles first, then the sign-in / sign-up card styles -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="auth.css">
+</head>
+<body>
+  <!-- Minimal header: just the logo, linking home -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="/" aria-label="MedDeck home">
+        <img class="mark" src="logo-mark.svg" alt="">
+        <span>Med<span class="deck">Deck</span></span>
+      </a>
+    </div>
+  </header>
+
+  <main class="auth">
+    <div class="auth-card">
+      <h1>Welcome back</h1>
+      <p class="auth-lead">Log in to pick up where you left off.</p>
+
+      <!-- novalidate: js/login.js does the checking so messages match the site's style -->
+      <form id="login-form" novalidate>
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+        <button class="btn" id="submit" type="submit">Log in</button>
+        <!-- Status / error text is written here; aria-live lets screen readers announce it -->
+        <p class="auth-msg" id="msg" role="status" aria-live="polite"></p>
+      </form>
+
+      <p class="auth-alt">New to MedDeck? <a href="signup.html">Create an account</a></p>
+    </div>
+  </main>
+
+  <!-- Order matters: config.js and the Supabase library define globals that js/login.js reads. -->
+  <script src="config.js"></script>
+  <script src="vendor/supabase.js"></script>
+  <script type="module" src="js/login.js"></script>
+</body>
+</html>

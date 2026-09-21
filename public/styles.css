@@ -1,3 +1,4 @@
+/* Shared styles for every page. Colours, radius and shadow are CSS variables so the whole theme lives here. */
 :root {
   --blue: #2078ef;
   --blue-dark: #1558b8;
@@ -12,6 +13,7 @@
   --shadow: 0 20px 50px -20px rgba(32, 120, 239, .45);
 }
 
+/* Dark mode: redefine the neutral colours when the visitor's device is set to a dark theme */
 @media (prefers-color-scheme: dark) {
   :root {
     --ink: #eef3fb;
@@ -23,6 +25,7 @@
   }
 }
 
+/* Base: sensible defaults for every element (padding included in widths, smooth anchor scrolling, page font) */
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 72px; }
 body {
@@ -36,8 +39,10 @@ body {
 h1, h2, h3 { line-height: 1.15; margin: 0; letter-spacing: -.02em; }
 p { margin: 0; }
 a { color: inherit; text-decoration: none; }
+/* .container centres content with a max width; .narrow is a tighter version for text-heavy pages */
 .container { width: min(1120px, 100% - 32px); margin-inline: auto; }
 .narrow { width: min(760px, 100% - 32px); }
+/* .sr-only hides an element visually but keeps it available to screen readers and keyboard focus */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Buttons */
@@ -75,7 +80,14 @@ a { color: inherit; text-decoration: none; }
 .mark { height: 32px; width: auto; }
 .nav-links { display: flex; align-items: center; gap: 28px; font-weight: 500; font-size: .95rem; color: var(--muted); }
 .nav-links a:not(.btn):hover { color: var(--blue); }
+/* Login-state buttons in the header (filled in by js/authNav.js). Hidden until the script knows whether
+   the visitor is signed in, so the wrong buttons never flash on load. */
 .nav-links .btn { color: #fff; }
+.nav-links .btn-ghost { color: var(--blue); }
+.nav-links .btn-ghost:hover { color: #fff; }
+.auth-nav { display: flex; align-items: center; gap: 12px; }
+.auth-nav:not([data-ready]) { visibility: hidden; }
+.auth-nav .who { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Hero */
 .hero { padding: 80px 0 72px; background: radial-gradient(900px 400px at 85% 0%, var(--blue-light), transparent 70%); }
@@ -103,6 +115,7 @@ h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 800; }
   animation: float 6s ease-in-out infinite;
 }
 @keyframes float { 50% { transform: translateY(-8px); } }
+/* Details of the sample card: subject tag, question, answer, and the mock rating buttons */
 .tag { align-self: flex-start; background: var(--blue-light); color: var(--blue); font-weight: 700; font-size: .75rem; padding: 4px 12px; border-radius: 999px; }
 @media (prefers-color-scheme: dark) { .tag { background: #d9e8fd; } }
 .q { font-weight: 700; font-size: 1.2rem; line-height: 1.35; }
@@ -124,6 +137,7 @@ h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 800; }
 .section h2, .cta h2 { font-size: clamp(1.8rem, 3.5vw, 2.4rem); font-weight: 800; text-align: center; }
 .section-lead { text-align: center; color: var(--muted); margin: 14px auto 52px; max-width: 36em; }
 
+/* Feature cards: a 3-column grid (fewer columns on smaller screens, see Responsive) */
 .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .feature { padding: 28px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); transition: transform .2s, box-shadow .2s, border-color .2s; }
 .feature:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--blue-mid); }
@@ -133,6 +147,7 @@ h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 800; }
 .icon svg { width: 24px; height: 24px; fill: none; stroke: var(--blue); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 @media (prefers-color-scheme: dark) { .icon svg { stroke: var(--blue-mid); } }
 
+/* "How it works" steps: three columns with a numbered circle above each */
 .steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; counter-reset: s; }
 .steps li { text-align: center; padding: 0 12px; }
 .num { display: inline-grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 800; font-size: 1.2rem; box-shadow: var(--shadow); }
@@ -143,6 +158,7 @@ h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 800; }
 details { border-bottom: 1px solid var(--line); padding: 20px 0; }
 details:first-of-type { margin-top: 40px; border-top: 1px solid var(--line); }
 summary { cursor: pointer; font-weight: 600; font-size: 1.05rem; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+/* The + icon after each question is drawn with CSS and rotates to an x when the item is open */
 summary::-webkit-details-marker { display: none; }
 summary::after { content: "+"; color: var(--blue); font-size: 1.5rem; font-weight: 500; transition: transform .2s; }
 details[open] summary::after { transform: rotate(45deg); }
@@ -161,19 +177,22 @@ details p { color: var(--muted); margin-top: 12px; }
 .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
 
 /* Responsive */
+/* Tablets: stack the hero, 2-column features, single-column steps */
 @media (max-width: 900px) {
   .hero-inner { grid-template-columns: 1fr; }
   .hero-art { height: 320px; max-width: 460px; width: 100%; margin: 0 auto; }
   .grid { grid-template-columns: repeat(2, 1fr); }
   .steps { grid-template-columns: 1fr; }
 }
+/* Phones: hide the text nav links (the buttons stay), single-column layout, stack the email form */
 @media (max-width: 640px) {
-  .nav-links a:not(.btn) { display: none; }
+  .nav-links a:not(.btn), .auth-nav .who { display: none; }
   .hero { padding: 48px 0; }
   .section { padding: 64px 0; }
   .grid, .stats-inner { grid-template-columns: 1fr; }
   .signup { flex-direction: column; }
 }
+/* Respect visitors who ask their device to reduce motion: switch off animations and smooth scrolling */
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }

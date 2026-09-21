@@ -1,0 +1,33 @@
+/* Styles for the login and signup pages. Uses the colour variables and .btn from styles.css. */
+
+/* Full-height page area that centres the card, over a soft blue glow in the top-right corner */
+.auth { min-height: calc(100vh - 68px); display: grid; place-items: center; padding: 48px 16px; background: radial-gradient(900px 400px at 85% 0%, var(--blue-light), transparent 70%); }
+/* The card itself: max 440px wide, shrinks to fit small screens */
+.auth-card { width: min(440px, 100%); padding: 36px 32px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); box-shadow: var(--shadow); }
+.auth-card h1 { font-size: 1.8rem; font-weight: 800; }
+.auth-lead { color: var(--muted); margin: 8px 0 24px; }
+
+/* Form fields stacked vertically */
+.auth-card form { display: grid; gap: 6px; }
+.auth-card label { font-weight: 600; font-size: .9rem; margin-top: 10px; }
+.auth-card .opt { color: var(--muted); font-weight: 500; }
+.auth-card input:not([type="checkbox"]) { padding: 12px 16px; border-radius: 12px; border: 2px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; }
+/* The blue border replaces the default focus outline so keyboard users still see which field is active */
+.auth-card input:not([type="checkbox"]):focus { outline: none; border-color: var(--blue); }
+.auth-card small { color: var(--muted); font-size: .8rem; }
+/* The disclaimer checkbox row */
+.auth-card .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 500; font-size: .85rem; color: var(--muted); margin-top: 18px; }
+.auth-card .check input { margin-top: 3px; accent-color: var(--blue); }
+.auth-card .btn { margin-top: 20px; width: 100%; }
+/* Greyed-out look while a request is in progress; also cancels the hover lift from .btn */
+.auth-card .btn:disabled { opacity: .6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* "Already have an account?" / "New to MedDeck?" line below the card's form */
+.auth-alt { margin-top: 20px; text-align: center; color: var(--muted); font-size: .9rem; }
+.auth-alt a { color: var(--blue); font-weight: 600; }
+.auth-alt a:hover { text-decoration: underline; }
+
+/* Status message under the button; js sets data-kind to "error" or "success" to pick the colour */
+.auth-msg { min-height: 1.6em; margin-top: 8px; font-weight: 600; font-size: .9rem; }
+.auth-msg[data-kind="error"] { color: #d64545; }
+.auth-msg[data-kind="success"] { color: #1f9d5a; }

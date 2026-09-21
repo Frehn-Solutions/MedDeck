@@ -6,12 +6,14 @@
   <title>MedDeck</title>
   <meta name="description" content="MedDeck: smarter medical study decks that help you learn faster and remember longer.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <!-- Google Fonts (Montserrat), used across the whole site -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Sticky top bar: logo, section links, and login-state buttons -->
   <header class="nav">
     <div class="container nav-inner">
       <a class="brand" href="#top" aria-label="MedDeck home">
@@ -22,12 +24,17 @@
         <a href="#features">Features</a>
         <a href="#how">How it works</a>
         <a href="#faq">FAQ</a>
-        <a class="btn btn-small" href="#cta">Get started</a>
+        <!-- Signed-out buttons as a default; js/authNav.js swaps them for email / "My materials" / "Log out" when signed in -->
+        <div class="auth-nav" id="auth-nav">
+          <a class="btn btn-small btn-ghost" href="login.html">Log in</a>
+          <a class="btn btn-small" href="signup.html">Sign up</a>
+        </div>
       </nav>
     </div>
   </header>
 
   <main id="top">
+    <!-- Hero: headline and call-to-action on the left, an illustrated stack of flashcards on the right -->
     <section class="hero">
       <div class="container hero-inner">
         <div class="hero-copy">
@@ -45,6 +52,7 @@
           </ul>
         </div>
 
+        <!-- Decorative sample card (hidden from screen readers): three stacked layers, styled to echo the logo -->
         <div class="hero-art" aria-hidden="true">
           <div class="card card-3"></div>
           <div class="card card-2"></div>
@@ -60,6 +68,7 @@
       </div>
     </section>
 
+    <!-- Three short headline facts in a strip below the hero -->
     <section class="stats">
       <div class="container stats-inner">
         <div><strong>10 min</strong><span>a day is enough to build a habit</span></div>
@@ -68,6 +77,7 @@
       </div>
     </section>
 
+    <!-- Features: a grid of cards, each with an inline SVG icon, a title and a sentence -->
     <section id="features" class="section">
       <div class="container">
         <h2>Built for the way clinicians learn</h2>
@@ -119,6 +129,7 @@
       </div>
     </section>
 
+    <!-- How it works: three numbered steps -->
     <section id="how" class="section alt">
       <div class="container">
         <h2>How it works</h2>
@@ -143,6 +154,7 @@
       </div>
     </section>
 
+    <!-- FAQ: <details> elements expand and collapse natively, no JavaScript needed -->
     <section id="faq" class="section">
       <div class="container narrow">
         <h2>Questions, answered</h2>
@@ -165,6 +177,7 @@
       </div>
     </section>
 
+    <!-- Closing call-to-action with an email box. It is a placeholder for now: see script.js, nothing is stored yet. -->
     <section id="cta" class="cta">
       <div class="container cta-inner">
         <h2>Ready to make it stick?</h2>
@@ -179,6 +192,7 @@
     </section>
   </main>
 
+  <!-- Footer, including the educational-use disclaimer -->
   <footer class="footer">
     <div class="container footer-inner">
       <span>&copy; <span id="year">2026</span> MedDeck. All rights reserved.</span>
@@ -186,6 +200,10 @@
     </div>
   </footer>
 
+  <!-- script.js: page behaviour (year, email form). config.js and the Supabase library define globals that authNav.js reads. -->
   <script src="script.js"></script>
+  <script src="config.js"></script>
+  <script src="vendor/supabase.js"></script>
+  <script type="module" src="js/authNav.js"></script>
 </body>
 </html>
