@@ -1,0 +1,90 @@
+/* Styles for the study-materials portal (portal.html). Uses the colour variables from styles.css. */
+
+/* Page layout and headings */
+.portal { padding: 56px 0 96px; min-height: calc(100vh - 68px - 90px); }
+.portal h1 { font-size: clamp(1.8rem, 3.5vw, 2.4rem); font-weight: 800; }
+.portal h2 { font-size: 1.3rem; font-weight: 700; margin: 48px 0 12px; }
+.portal-lead { color: var(--muted); margin: 10px 0 28px; }
+.portal-note { color: var(--muted); font-size: .8rem; margin-top: 10px; }
+
+/* "Cards to generate" row: label, a pill-shaped stepper (- [number] +), and a hint */
+.count { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.count label { font-weight: 600; }
+.count-hint { color: var(--muted); font-size: .8rem; }
+.stepper { display: inline-flex; align-items: stretch; border: 2px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--bg); }
+.stepper button { width: 40px; border: 0; background: transparent; color: var(--blue); font: inherit; font-size: 1.2rem; font-weight: 700; cursor: pointer; }
+.stepper button:hover { background: var(--blue-light); }
+/* Number field: the -moz/-webkit rules below hide the browser's built-in spinner arrows, since we have our own buttons */
+.stepper input { width: 56px; border: 0; border-inline: 2px solid var(--line); text-align: center; font: inherit; font-weight: 600; color: var(--ink); background: transparent; padding: 8px 0; -moz-appearance: textfield; }
+.stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.stepper input:focus { outline: none; background: var(--blue-light); }
+
+/* Study level dropdown, styled to match the stepper (it reuses the .count row layout) */
+.level select { padding: 8px 14px; border: 2px solid var(--line); border-radius: 999px; background: var(--bg); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
+.level select:focus { outline: none; border-color: var(--blue); }
+
+/* Drag-and-drop area. `.over` is added by JS while a file is being dragged over it. */
+.drop {
+  display: grid; justify-items: center; gap: 6px; text-align: center;
+  padding: 40px 24px; border: 2px dashed var(--blue-mid); border-radius: var(--radius);
+  background: var(--bg-alt); cursor: pointer; transition: background .15s, border-color .15s;
+}
+/* :focus-within highlights the zone when the (visually hidden) file input is focused via keyboard */
+.drop:hover, .drop.over, .drop:focus-within { background: var(--blue-light); border-color: var(--blue); }
+.drop svg { width: 36px; height: 36px; fill: none; stroke: var(--blue); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.drop span { color: var(--muted); font-size: .85rem; }
+
+/* Upload progress queue (one line per file being uploaded); data-state is set by JS to "done" or "error" */
+.queue, .files { list-style: none; padding: 0; margin: 0; }
+.queue { margin-top: 16px; display: grid; gap: 8px; }
+.queue li { display: flex; justify-content: space-between; gap: 16px; font-size: .9rem; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; }
+.queue .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.queue .state { flex: none; font-weight: 600; color: var(--muted); }
+.queue li[data-state="done"] .state { color: #1f9d5a; }
+.queue li[data-state="error"] .state { color: #d64545; }
+
+/* "Your uploads" list: file name and date on the left, status badge on the right */
+.files { border-top: 1px solid var(--line); }
+.files li { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.file-info { flex: 1; min-width: 0; }
+.file-name { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-meta { color: var(--muted); font-size: .8rem; }
+.file-state { display: flex; align-items: center; gap: 10px; flex: none; flex-wrap: wrap; justify-content: flex-end; max-width: 55%; }
+/* Status badge; colour depends on the row's data-status (blue by default, green when done, red when failed) */
+.badge { font-size: .8rem; font-weight: 700; padding: 4px 12px; border-radius: 999px; background: var(--blue-light); color: var(--blue); }
+.files li[data-status="done"] .badge { background: #dff5e8; color: #1f7a48; }
+.files li[data-status="failed"] .badge { background: #fbe4e4; color: #b03636; }
+/* Spinning ring shown in front of the badge text while cards are being generated */
+.badge.busy::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 8px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -1px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.file-error { color: #d64545; font-size: .8rem; }
+
+/* "Your cards" list: each row is a bordered <details> that expands to show the answer, with a Delete button beside it */
+.cards { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.card-row { display: flex; align-items: flex-start; gap: 10px; }
+.card-row .card-item { flex: 1; min-width: 0; }
+.card-row .link-btn { flex: none; margin-top: 10px; }
+.card-item { border: 1px solid var(--line); border-radius: 12px; padding: 0 18px; background: var(--bg); }
+/* Cancels the global `details:first-of-type` margin from styles.css, which would otherwise space every card 40px down */
+.card-item:first-of-type { margin-top: 0; border-top: 1px solid var(--line); }
+.card-item summary { padding: 14px 0; font-size: 1rem; }
+.card-body { padding-bottom: 16px; display: grid; gap: 8px; font-size: .92rem; }
+.card-body p { margin: 0; color: var(--ink); }
+.card-answer { color: var(--blue); }
+.card-source, .card-from { color: var(--muted); font-size: .82rem; }
+/* Small pill button (e.g. "Start"); the .danger variant is red, used for Delete */
+.link-btn { font: inherit; font-size: .85rem; font-weight: 600; padding: 6px 14px; border-radius: 999px; border: 2px solid var(--line); background: transparent; color: var(--blue); cursor: pointer; }
+.link-btn:hover { border-color: var(--blue); }
+.link-btn.danger { color: #d64545; }
+.link-btn.danger:hover { border-color: #d64545; }
+.link-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Empty / loading text and the error banner */
+.portal-empty { color: var(--muted); }
+.portal-error { color: #d64545; font-weight: 600; margin-bottom: 8px; }
+
+/* Phones: let the file name take a full row, with the status underneath */
+@media (max-width: 640px) {
+  .files li { flex-wrap: wrap; }
+  .file-info { flex-basis: 100%; }
+}
