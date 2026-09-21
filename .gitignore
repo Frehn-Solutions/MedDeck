@@ -142,3 +142,6 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Planning and marketing documents: kept locally (backed up by OneDrive), not in the repo
+Documents/
