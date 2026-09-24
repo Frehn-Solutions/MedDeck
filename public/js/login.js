@@ -1,5 +1,5 @@
 // Logic for login.html: validate the form, sign in with Supabase, then go to the home page.
-import { isConfigured, logIn, supabase } from "./supabaseClient.js";
+import { isConfigured, isMember, logIn, supabase } from "./supabaseClient.js";
 
 const form = document.getElementById("login-form");
 const msg = document.getElementById("msg"); // status / error line under the button
@@ -17,7 +17,7 @@ if (!isConfigured) {
 } else {
   // Someone who is already signed in has no reason to see this page.
   supabase.auth.getSession().then(({ data }) => {
-    if (data.session) window.location.replace("/");
+    if (isMember(data.session)) window.location.replace("/"); // a free-trial (anonymous) session doesn't count
   });
 }
 

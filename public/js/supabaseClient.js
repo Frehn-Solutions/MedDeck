@@ -11,6 +11,10 @@ export const isConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 // The anon key is safe in the browser: what each user can actually do is limited by Row Level Security in Supabase.
 export const supabase = isConfigured ? window.supabase.createClient(supabaseUrl, supabaseAnonKey) : null;
 
+// True for a session that belongs to a real account. Visitors trying the site without one get an anonymous
+// Supabase session (see js/portal.js), which has a user id but isn't a login: pages treat it as signed out.
+export const isMember = (session) => Boolean(session && !session.user.is_anonymous);
+
 // Returns the client, or throws a clear error if Supabase isn't configured.
 function client() {
   if (!supabase) throw new Error("Supabase is not configured. Set SUPABASE_URL and SUPABASE_ANON_KEY in .env.");

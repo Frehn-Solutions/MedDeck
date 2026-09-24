@@ -10,7 +10,6 @@ const path = require("node:path");
 // Load secrets (Supabase keys, Anthropic key) from .env into process.env. `quiet` hides dotenv's startup tip.
 require("dotenv").config({ path: path.join(__dirname, ".env"), quiet: true });
 const { handleProcess } = require("./lib/uploadRoute");
-const { LEVELS, DEFAULT_LEVEL } = require("./lib/levels");
 
 const PORT = process.env.PORT || 3000;
 // Everything the browser may request as a plain file lives under /public.
@@ -56,11 +55,9 @@ http
     }
 
     // /config.js is generated on the fly: it sets window.MEDDECK_CONFIG for the browser scripts.
-    // It carries the Supabase settings and the list of study levels (so the portal's selector always matches the server).
-    // It is never cached so changes to .env or levels.js show up after a server restart.
+    // It is never cached so changes to .env show up after a server restart.
     if (urlPath === "/config.js") {
-      const levels = Object.entries(LEVELS).map(([id, { label }]) => ({ id, label }));
-      const config = { supabaseUrl: SUPABASE_URL, supabaseAnonKey: SUPABASE_ANON_KEY, levels, defaultLevel: DEFAULT_LEVEL };
+      const config = { supabaseUrl: SUPABASE_URL, supabaseAnonKey: SUPABASE_ANON_KEY };
       res.writeHead(200, { "Content-Type": TYPES[".js"], "Cache-Control": "no-store" });
       res.end(`window.MEDDECK_CONFIG = ${JSON.stringify(config)};`);
       return;

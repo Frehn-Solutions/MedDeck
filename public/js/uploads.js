@@ -17,7 +17,8 @@ export async function createUpload({ fileName, fileType, fileSize, storagePath }
 
 // Asks the server to start generating cards. Returns straight away; progress shows in uploads.status.
 // The user's access token proves who is asking; the server checks it and that the upload is theirs.
-export async function startProcessing(uploadId, cardCount, level) {
+// `settings` is { cardCount, focus, difficulty, yearGroup, context }; see the notes on handleProcess in lib/uploadRoute.js.
+export async function startProcessing(uploadId, settings) {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
   if (!token) throw new Error("You're signed out. Please log in again.");
@@ -25,17 +26,32 @@ export async function startProcessing(uploadId, cardCount, level) {
   const res = await fetch(`/api/uploads/${encodeURIComponent(uploadId)}/process`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ cardCount, level }), // level may be undefined; the server then uses its default
+    body: JSON.stringify(settings), // the server validates every field
   });
   // 202 Accepted means the worker was started (or was already running).
-  if (res.status !== 202) throw new Error("Couldn't start processing. Please try again.");
+  if (res.status !== 202) {
+    // The server explains a refused free-trial request; `code` lets the page show the login prompt.
+    const body = await res.json().catch(() => ({}));
+    const err = new Error(res.status === 403 && body.error ? body.error : "Couldn't start processing. Please try again.");
+    err.code = body.code;
+    throw err;
+  }
+}
+
+// Remove an upload row (RLS lets users delete only their own). Used for files that are still waiting to be
+// generated. Like deleteCard, it checks that a row really was deleted. The caller removes the stored file.
+export async function deleteUpload(uploadId) {
+  const { data, error } = await supabase.from("uploads").delete().eq("id", uploadId).select("id");
+  if (error) throw error;
+  if (!data.length) throw new Error("That upload couldn't be removed. It may already be gone.");
 }
 
 // The user's most recent uploads with their status. Polled while any are still being processed.
+// storage_path is included so a waiting file can be removed from Storage as well.
 export async function listUploads() {
   const { data, error } = await supabase
     .from("uploads")
-    .select("id, file_name, status, error, created_at")
+    .select("id, file_name, status, error, created_at, storage_path")
     .order("created_at", { ascending: false })
     .limit(50);
   if (error) throw error;

@@ -1,11 +1,57 @@
-/* Styles for the study-materials portal (portal.html). Uses the colour variables from styles.css. */
+/* Styles for the upload section of the homepage (#upload in index.html). Uses the colour variables from styles.css. */
 
-/* Page layout and headings */
-.portal { padding: 56px 0 96px; min-height: calc(100vh - 68px - 90px); }
-.portal h1 { font-size: clamp(1.8rem, 3.5vw, 2.4rem); font-weight: 800; }
-.portal h2 { font-size: 1.3rem; font-weight: 700; margin: 48px 0 12px; }
+/* Section layout and headings */
+.upload { padding: 48px 0 72px; }
+.upload .upload-title { font-size: clamp(1.8rem, 3.5vw, 2.4rem); font-weight: 800; }
+.upload h2 { font-size: 1.3rem; font-weight: 700; margin: 48px 0 12px; }
 .portal-lead { color: var(--muted); margin: 10px 0 28px; }
 .portal-note { color: var(--muted); font-size: .8rem; margin-top: 10px; }
+
+/* Shown instead of the tool when the visitor isn't signed in */
+.gate { padding: 32px 24px; text-align: center; border: 2px dashed var(--blue-mid); border-radius: var(--radius); background: var(--bg-alt); }
+.gate p { color: var(--muted); }
+.gate-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+.gate-actions[hidden] { display: none; }
+.gate-actions .btn { color: #fff; }
+.gate-actions .btn-ghost { color: var(--blue); }
+.gate-actions .btn-ghost:hover { color: #fff; }
+
+/* Advanced settings popup (a native <dialog>; ::backdrop dims the page behind it) */
+.dialog {
+  width: min(520px, calc(100% - 32px)); max-height: calc(100vh - 32px); overflow-y: auto;
+  padding: 28px; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--bg); color: var(--ink); box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .5);
+}
+.dialog::backdrop { background: rgba(11, 18, 32, .55); }
+.dialog h3 { font-size: 1.3rem; font-weight: 800; }
+.dialog-field { display: grid; gap: 8px; margin-top: 20px; }
+.dialog-label { font-weight: 600; }
+.dialog-label .count-hint { font-weight: 400; }
+.dialog .choices { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+/* Course and year dropdowns side by side; they stack on phones (see the media query below) */
+.year-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dialog select, .dialog textarea {
+  width: 100%; padding: 10px 14px; border: 2px solid var(--line); border-radius: 12px;
+  background: var(--bg); color: var(--ink); font: inherit; font-size: .92rem;
+}
+.dialog textarea { resize: vertical; line-height: 1.5; }
+.dialog select:focus, .dialog textarea:focus { outline: none; border-color: var(--blue); background: var(--blue-light); }
+.dialog .context .count-hint { justify-self: end; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 26px; }
+
+/* "Paste text instead" / "Upload files instead" switch, right-aligned above the input area */
+.mode-switch { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+
+/* Pasted-text box, styled to match the drop zone it replaces */
+.text-box { display: grid; gap: 10px; }
+.text-box textarea {
+  width: 100%; min-height: 220px; resize: vertical; padding: 16px 18px;
+  border: 2px solid var(--blue-mid); border-radius: var(--radius);
+  background: var(--bg-alt); color: var(--ink); font: inherit; font-size: .95rem; line-height: 1.5;
+}
+.text-box textarea:focus { outline: none; border-color: var(--blue); background: var(--blue-light); }
+.text-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.text-actions .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
 
 /* "Cards to generate" row: label, a pill-shaped stepper (- [number] +), and a hint */
 .count { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
@@ -19,9 +65,10 @@
 .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .stepper input:focus { outline: none; background: var(--blue-light); }
 
-/* Study level dropdown, styled to match the stepper (it reuses the .count row layout) */
-.level select { padding: 8px 14px; border: 2px solid var(--line); border-radius: 999px; background: var(--bg); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
-.level select:focus { outline: none; border-color: var(--blue); }
+/* Clinical / Preclinical radio buttons (they reuse the .count row layout; the label rule there is overridden for the options) */
+.focus-title { font-weight: 600; }
+.focus .radio { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer; }
+.focus .radio input { accent-color: var(--blue); width: 16px; height: 16px; margin: 0; cursor: pointer; }
 
 /* Drag-and-drop area. `.over` is added by JS while a file is being dragged over it. */
 .drop {
@@ -43,6 +90,11 @@
 .queue li[data-state="done"] .state { color: #1f9d5a; }
 .queue li[data-state="error"] .state { color: #d64545; }
 
+/* The Generate button and the line beside it saying how many files are waiting */
+.generate { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin-top: 20px; }
+.generate .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+.generate-hint { color: var(--muted); font-size: .9rem; }
+
 /* "Your uploads" list: file name and date on the left, status badge on the right */
 .files { border-top: 1px solid var(--line); }
 .files li { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
@@ -58,6 +110,36 @@
 .badge.busy::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 8px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -1px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .file-error { color: #d64545; font-size: .8rem; }
+
+/* Cards toolbar: search box and dropdowns for filtering and grouping */
+.toolbar { display: grid; gap: 10px; margin-bottom: 18px; }
+.toolbar-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.toolbar input[type="search"] { flex: 1; min-width: 200px; padding: 10px 18px; border: 2px solid var(--line); border-radius: 999px; background: var(--bg); color: var(--ink); font: inherit; font-size: .92rem; }
+.toolbar select { padding: 8px 12px; border: 2px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); font: inherit; font-size: .88rem; }
+.toolbar input:focus, .toolbar select:focus { outline: none; border-color: var(--blue); background: var(--blue-light); }
+.toolbar-field { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 600; }
+.toolbar-field[hidden], .toolbar .link-btn[hidden] { display: none; }
+.toolbar-row .count-hint { margin-right: auto; }
+
+/* Groups of cards: each is a collapsible box with a count; cards inside sit under topic headings */
+.group { border: 1px solid var(--line); border-radius: 14px; background: var(--bg-alt); padding: 0 18px; margin: 0 0 14px; }
+/* Cancels the global `details:first-of-type` margin / top border from styles.css, like .card-item below */
+.group:first-of-type { margin-top: 0; border-top: 1px solid var(--line); }
+.group > summary { padding: 16px 0; font-size: 1.05rem; font-weight: 700; justify-content: flex-start; }
+.group > summary::after { margin-left: auto; }
+.group-count { font-size: .78rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--blue-light); color: var(--blue); margin-left: 10px; }
+.group-body { padding-bottom: 14px; }
+.topic + .topic { margin-top: 6px; }
+.topic-name { margin: 12px 0 8px; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+
+/* Card labels (subject, topic, difficulty, type) shown as small pills under the question */
+.card-q { display: grid; gap: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: .72rem; font-weight: 700; line-height: 1.5; padding: 1px 10px; border-radius: 999px; background: var(--bg-alt); color: var(--muted); border: 1px solid var(--line); }
+.chip-subject { background: var(--blue-light); color: var(--blue); border-color: transparent; }
+.chip-easy { background: #dff5e8; color: #1f7a48; border-color: transparent; }
+.chip-medium { background: #fdf0d5; color: #8a5a00; border-color: transparent; }
+.chip-difficult { background: #fbe4e4; color: #b03636; border-color: transparent; }
 
 /* "Your cards" list: each row is a bordered <details> that expands to show the answer, with a Delete button beside it */
 .cards { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
@@ -85,6 +167,7 @@
 
 /* Phones: let the file name take a full row, with the status underneath */
 @media (max-width: 640px) {
+  .year-row { grid-template-columns: 1fr; }
   .files li { flex-wrap: wrap; }
   .file-info { flex-basis: 100%; }
 }

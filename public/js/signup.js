@@ -1,5 +1,5 @@
 // Logic for signup.html: validate the form, create the account with Supabase, then go to the home page.
-import { isConfigured, signUp, supabase } from "./supabaseClient.js";
+import { isConfigured, isMember, signUp, supabase } from "./supabaseClient.js";
 
 const form = document.getElementById("signup-form");
 const msg = document.getElementById("msg"); // status / error line under the button
@@ -17,7 +17,7 @@ if (!isConfigured) {
 } else {
   // Someone who is already signed in has no reason to see this page.
   supabase.auth.getSession().then(({ data }) => {
-    if (data.session) window.location.replace("/");
+    if (isMember(data.session)) window.location.replace("/"); // a free-trial (anonymous) session doesn't count
   });
 }
 

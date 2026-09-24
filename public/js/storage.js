@@ -41,7 +41,9 @@ export async function uploadMaterial(userId, file) {
   return path;
 }
 
-// Used when the upload succeeded but recording it did not, so no orphan is left behind.
+// Delete a stored file: used when an upload succeeded but recording it did not (so no orphan is left behind),
+// and when the user removes a file that was waiting to be generated. Returns true if the file was deleted.
 export async function discardMaterial(path) {
-  await supabase.storage.from(BUCKET).remove([path]);
+  const { error } = await supabase.storage.from(BUCKET).remove([path]);
+  return !error;
 }

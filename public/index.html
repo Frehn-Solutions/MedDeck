@@ -10,7 +10,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Shared site styles first, then the styles for the upload section -->
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="portal.css">
 </head>
 <body>
   <!-- Sticky top bar: logo, section links, and login-state buttons -->
@@ -21,6 +23,7 @@
         <span>Med<span class="deck">Deck</span></span>
       </a>
       <nav class="nav-links" aria-label="Primary">
+        <a href="#upload">Upload</a>
         <a href="#features">Features</a>
         <a href="#how">How it works</a>
         <a href="#faq">FAQ</a>
@@ -34,12 +37,190 @@
   </header>
 
   <main id="top">
+    <!-- Upload: the first thing visitors see. Turns files or pasted text into flashcards. Wired up in js/portal.js.
+         Visitors without an account are given an anonymous session and one free generation; #gate is the login
+         prompt shown when that isn't possible or has been used up, and #tool is the tool itself. Both start hidden. -->
+    <section id="upload" class="upload">
+      <div class="container narrow">
+        <h1 class="upload-title">Turn your material into flashcards</h1>
+        <p class="portal-lead">Upload files or paste text, choose your settings, then press Generate. Uploaded material is deleted as soon as its cards are made.</p>
+
+        <div class="gate" id="gate" hidden>
+          <p id="gate-text">Log in or sign up to upload material and generate cards.</p>
+          <div class="gate-actions" id="gate-actions">
+            <a class="btn btn-small btn-ghost" href="login.html">Log in</a>
+            <a class="btn btn-small" href="signup.html">Sign up</a>
+          </div>
+        </div>
+
+        <div id="tool" hidden>
+          <!-- Everything for adding material and generating. Hidden once a visitor without an account has used
+               their free generation (the login prompt above then takes its place). -->
+          <div id="inputs">
+          <p class="portal-note free-note" id="free-note" hidden>Try it free: your first generation needs no account. Log in or sign up to make more.</p>
+
+          <!-- How many cards to generate for the next upload (1-50). -->
+          <div class="count">
+            <label for="count">Cards to generate</label>
+            <div class="stepper">
+              <button type="button" id="count-down" aria-label="Fewer cards">&minus;</button>
+              <input id="count" type="number" inputmode="numeric" min="1" max="50" value="10">
+              <button type="button" id="count-up" aria-label="More cards">+</button>
+            </div>
+            <span class="count-hint">per file or text, 1 to 50</span>
+          </div>
+
+          <!-- What kind of cards to favour. The value is sent to the server with the upload and checked there again
+               (lib/prompts.js only accepts these two words). Clinical is the default. -->
+          <div class="count focus" role="radiogroup" aria-labelledby="focus-label">
+            <span class="focus-title" id="focus-label">Focus</span>
+            <label class="radio"><input type="radio" name="focus" value="clinical" checked> Clinical</label>
+            <label class="radio"><input type="radio" name="focus" value="preclinical"> Preclinical</label>
+            <span class="count-hint">presentations and management, or mechanisms and basic science</span>
+          </div>
+
+          <!-- Default settings, or advanced settings (difficulty, year group and context) chosen in the popup below.
+               Choosing "Advanced" opens the popup; the summary and Edit button appear once advanced settings are saved.
+               js/portal.js reads these. -->
+          <div class="count focus" role="radiogroup" aria-labelledby="settings-label">
+            <span class="focus-title" id="settings-label">Settings</span>
+            <label class="radio"><input type="radio" name="settings" value="default" checked> Default</label>
+            <label class="radio"><input type="radio" name="settings" value="advanced"> Advanced</label>
+            <button class="link-btn" id="adv-edit" type="button" hidden>Edit advanced settings</button>
+            <span class="count-hint" id="adv-summary" aria-live="polite"></span>
+          </div>
+
+          <!-- Advanced settings popup: a native <dialog>, so it traps focus and closes on Escape. All of these are
+               optional. The server checks every value again (lib/prompts.js) and the context is never stored. -->
+          <dialog class="dialog" id="adv-dialog" aria-labelledby="adv-title">
+            <form id="adv-form" method="dialog">
+              <h3 id="adv-title">Advanced settings</h3>
+
+              <div class="dialog-field">
+                <span class="dialog-label" id="difficulty-label">Difficulty</span>
+                <div class="focus choices" role="radiogroup" aria-labelledby="difficulty-label">
+                  <label class="radio"><input type="radio" name="difficulty" value="easy"> Easy</label>
+                  <label class="radio"><input type="radio" name="difficulty" value="medium" checked> Medium</label>
+                  <label class="radio"><input type="radio" name="difficulty" value="difficult"> Difficult</label>
+                </div>
+              </div>
+
+              <div class="dialog-field">
+                <span class="dialog-label" id="year-label">Year group <span class="count-hint">(optional)</span></span>
+                <div class="year-row" role="group" aria-labelledby="year-label">
+                  <select id="year-course" aria-label="Course">
+                    <option value="undergraduate">Undergraduate medicine</option>
+                    <option value="gem">GEM (graduate entry)</option>
+                  </select>
+                  <select id="year-num" aria-label="Year"></select>
+                </div>
+              </div>
+
+              <div class="dialog-field context">
+                <label class="dialog-label" for="context">Context <span class="count-hint">(optional)</span></label>
+                <textarea id="context" maxlength="1000" rows="4" placeholder="e.g. I'm revising for my cardiology exam, so focus on investigations and first-line management."></textarea>
+                <span class="count-hint" id="context-count" aria-live="polite">0 / 1,000 characters</span>
+              </div>
+
+              <div class="dialog-actions">
+                <button class="btn btn-small btn-ghost" id="adv-cancel" type="button">Cancel</button>
+                <button class="btn btn-small" id="adv-save" type="submit">Save</button>
+              </div>
+            </form>
+          </dialog>
+
+          <!-- Switches the input area below between choosing files and typing/pasting text -->
+          <div class="mode-switch">
+            <button class="link-btn" id="mode-toggle" type="button">Paste text instead</button>
+          </div>
+
+          <!-- File mode. The drop zone is a <label> for the hidden file input, so clicking anywhere on it opens the
+               file picker. Only file types the server can read are offered in the picker. -->
+          <div id="file-mode">
+            <label class="drop" id="drop" for="file">
+              <input class="sr-only" id="file" type="file" multiple accept=".pdf,.txt,.md">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+              <strong>Drop files here or click to browse</strong>
+              <span>Select as many as you like (up to 10 at a time). PDF (with selectable text), text or Markdown, up to 25 MB each. Word and PowerPoint are coming soon.</span>
+            </label>
+          </div>
+
+          <!-- Text mode. The text is saved like a .txt file, so it goes through exactly the same steps as an upload. -->
+          <div id="text-mode" hidden>
+            <div class="text-box">
+              <label class="sr-only" for="text-input">Text to make cards from</label>
+              <textarea id="text-input" maxlength="300000" placeholder="Paste or type your notes here…"></textarea>
+              <div class="text-actions">
+                <span class="count-hint" id="text-count" aria-live="polite">0 / 300,000 characters</span>
+                <button class="btn btn-small" id="add-text" type="button">Add text</button>
+              </div>
+            </div>
+          </div>
+          <p class="portal-note">Only upload material you have the right to use.</p>
+
+          <!-- Progress lines for items being added right now (added by js/portal.js). aria-live lets screen readers announce changes. -->
+          <ul class="queue" id="queue" aria-live="polite"></ul>
+
+          <!-- Adding only stores the material. Nothing is generated until this button is pressed; it then generates for
+               everything that is waiting, using the card count and focus chosen above at that moment. -->
+          <div class="generate">
+            <button class="btn" id="generate" type="button" disabled>Generate cards</button>
+            <span class="generate-hint" id="generate-hint" aria-live="polite">Add a file or some text to get started.</span>
+          </div>
+          </div>
+
+          <!-- Error banner; hidden until something goes wrong. role="alert" makes screen readers announce it. -->
+          <p class="portal-error" id="error" role="alert" hidden></p>
+
+          <!-- The user's uploads and their processing status; refreshed automatically while any are in progress -->
+          <h2>Your uploads</h2>
+          <p class="portal-empty" id="uploads-status">Loading…</p>
+          <ul class="files" id="uploads"></ul>
+
+          <!-- The generated flashcards. Each card carries labels (subject, topic, difficulty, type); the toolbar searches,
+               filters and groups them, and js/portal.js fills the filter dropdowns with the values that exist. -->
+          <h2 id="cards-heading">Your cards</h2>
+          <p class="portal-empty" id="cards-status">Loading…</p>
+          <div class="toolbar" id="cards-toolbar" hidden>
+            <div class="toolbar-row">
+              <label class="sr-only" for="card-search">Search cards</label>
+              <input id="card-search" type="search" placeholder="Search questions, answers and topics…" autocomplete="off">
+              <label class="toolbar-field">Group by
+                <select id="group-by">
+                  <option value="subject">Subject and topic</option>
+                  <option value="source">Source</option>
+                  <option value="difficulty">Difficulty</option>
+                  <option value="aspect">Type</option>
+                  <option value="none">No grouping</option>
+                </select>
+              </label>
+            </div>
+            <div class="toolbar-row">
+              <label class="toolbar-field">Subject <select id="filter-subject"></select></label>
+              <label class="toolbar-field">Difficulty <select id="filter-difficulty"></select></label>
+              <label class="toolbar-field">Type <select id="filter-aspect"></select></label>
+              <label class="toolbar-field">Source <select id="filter-source"></select></label>
+              <button class="link-btn" id="filter-clear" type="button" hidden>Clear filters</button>
+            </div>
+            <div class="toolbar-row">
+              <span class="count-hint" id="cards-showing" aria-live="polite"></span>
+              <button class="link-btn" id="groups-expand" type="button">Expand all</button>
+              <button class="link-btn" id="groups-collapse" type="button">Collapse all</button>
+            </div>
+          </div>
+          <div id="cards"></div>
+
+          <p class="portal-note">Cards are for educational purposes only and should not be used to guide clinical practice. Guideline references are generated by AI and should be checked against the original source.</p>
+        </div>
+      </div>
+    </section>
+
     <!-- Hero: headline and call-to-action on the left, an illustrated stack of flashcards on the right -->
     <section class="hero">
       <div class="container hero-inner">
         <div class="hero-copy">
           <p class="eyebrow">Study smarter, not longer</p>
-          <h1>Your whole medical curriculum, <span class="accent">one deck at a time.</span></h1>
+          <h2 class="hero-title">Your whole medical curriculum, <span class="accent">one deck at a time.</span></h2>
           <p class="lead">MedDeck turns dense clinical material into focused, bite-sized decks, then schedules every review so what you learn actually sticks.</p>
           <div class="actions">
             <a class="btn" href="#cta">Get early access</a>
@@ -200,10 +381,12 @@
     </div>
   </footer>
 
-  <!-- script.js: page behaviour (year, email form). config.js and the Supabase library define globals that authNav.js reads. -->
+  <!-- script.js: page behaviour (year, email form). config.js and the Supabase library define globals that the
+       module scripts read (authNav.js for the header, portal.js for the upload section). -->
   <script src="script.js"></script>
   <script src="config.js"></script>
   <script src="vendor/supabase.js"></script>
   <script type="module" src="js/authNav.js"></script>
+  <script type="module" src="js/portal.js"></script>
 </body>
 </html>
