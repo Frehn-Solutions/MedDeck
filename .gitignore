@@ -145,3 +145,4 @@ vite.config.ts.timestamp-*
 
 # Planning and marketing documents: kept locally (backed up by OneDrive), not in the repo
 Documents/
+ideas.txt

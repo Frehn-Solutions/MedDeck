@@ -76,3 +76,33 @@ export async function listCards() {
   if (error) throw error;
   return data;
 }
+
+// Asks the server to build an Anki package from `cards` ([{ front, back, tags }]) and saves it as `deckName`.apkg.
+// The cards are sent as-is: the server never looks them up, it only turns this JSON into a .apkg file, so this
+// works for any cards the page already has loaded, free trial or member alike.
+export async function exportAnki(deckName, cards) {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) throw new Error("You're signed out. Please log in again.");
+
+  const res = await fetch("/api/export-anki", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ deckName, cards }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error || "Couldn't build the Anki package.");
+  }
+
+  // Save the response (the .apkg file itself) to disk via a throwaway link, the standard way to trigger a
+  // browser download from JavaScript.
+  const blob = await res.blob();
+  const match = /filename="([^"]+)"/.exec(res.headers.get("Content-Disposition") || "");
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = match?.[1] || "MedDeck.apkg";
+  a.click();
+  URL.revokeObjectURL(url);
+}

@@ -4,35 +4,25 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MedDeck</title>
-  <meta name="description" content="MedDeck: smarter medical study decks that help you learn faster and remember longer.">
+  <meta name="description" content="MedDeck: turn study material into flashcards.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <!-- Google Fonts (Montserrat), used across the whole site -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Shared site styles first, then the styles for the upload section -->
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="portal.css">
 </head>
 <body>
-  <!-- Sticky top bar: logo, section links, and login-state buttons -->
+  <!-- Sticky top bar: logo and login-state buttons -->
   <header class="nav">
     <div class="container nav-inner">
       <a class="brand" href="#top" aria-label="MedDeck home">
         <img class="mark" src="logo-mark.svg" alt="">
         <span>Med<span class="deck">Deck</span></span>
       </a>
-      <nav class="nav-links" aria-label="Primary">
-        <a href="#upload">Upload</a>
-        <a href="#features">Features</a>
-        <a href="#how">How it works</a>
-        <a href="#faq">FAQ</a>
-        <!-- Signed-out buttons as a default; js/authNav.js swaps them for email / "My materials" / "Log out" when signed in -->
-        <div class="auth-nav" id="auth-nav">
-          <a class="btn btn-small btn-ghost" href="login.html">Log in</a>
-          <a class="btn btn-small" href="signup.html">Sign up</a>
-        </div>
-      </nav>
+      <!-- Signed-out buttons as a default; js/authNav.js swaps them for email / "My materials" / "Log out" when signed in -->
+      <div class="auth-nav" id="auth-nav">
+        <a class="btn btn-small btn-ghost" href="login.html">Log in</a>
+        <a class="btn btn-small" href="signup.html">Sign up</a>
+      </div>
     </div>
   </header>
 
@@ -177,8 +167,8 @@
           <p class="portal-empty" id="uploads-status">Loading…</p>
           <ul class="files" id="uploads"></ul>
 
-          <!-- The generated flashcards. Each card carries labels (subject, topic, difficulty, type); the toolbar searches,
-               filters and groups them, and js/portal.js fills the filter dropdowns with the values that exist. -->
+          <!-- The generated flashcards, shown as folders (js/portal.js groups them by the chosen field). Opening a
+               folder pops up #deck-dialog, which steps through its cards one at a time. -->
           <h2 id="cards-heading">Your cards</h2>
           <p class="portal-empty" id="cards-status">Loading…</p>
           <div class="toolbar" id="cards-toolbar" hidden>
@@ -187,188 +177,55 @@
               <input id="card-search" type="search" placeholder="Search questions, answers and topics…" autocomplete="off">
               <label class="toolbar-field">Group by
                 <select id="group-by">
-                  <option value="subject">Subject and topic</option>
-                  <option value="source">Source</option>
+                  <option value="subject">Subject</option>
+                  <option value="source">Uploaded material</option>
                   <option value="difficulty">Difficulty</option>
                   <option value="aspect">Type</option>
-                  <option value="none">No grouping</option>
+                  <option value="none">All in one folder</option>
                 </select>
               </label>
+              <button class="link-btn" id="export-all" type="button">Download .apkg</button>
             </div>
             <div class="toolbar-row">
               <label class="toolbar-field">Subject <select id="filter-subject"></select></label>
               <label class="toolbar-field">Difficulty <select id="filter-difficulty"></select></label>
               <label class="toolbar-field">Type <select id="filter-aspect"></select></label>
-              <label class="toolbar-field">Source <select id="filter-source"></select></label>
+              <label class="toolbar-field">Material <select id="filter-source"></select></label>
               <button class="link-btn" id="filter-clear" type="button" hidden>Clear filters</button>
             </div>
             <div class="toolbar-row">
               <span class="count-hint" id="cards-showing" aria-live="polite"></span>
-              <button class="link-btn" id="groups-expand" type="button">Expand all</button>
-              <button class="link-btn" id="groups-collapse" type="button">Collapse all</button>
             </div>
           </div>
           <div id="cards"></div>
 
+          <!-- The folder viewer: a popup that steps through one folder's cards at a time. -->
+          <dialog class="dialog deck-dialog" id="deck-dialog" aria-labelledby="deck-title">
+            <div class="deck-head">
+              <h3 id="deck-title"></h3>
+              <button class="link-btn" id="deck-export" type="button">Download .apkg</button>
+              <button class="link-btn" id="deck-close" type="button" aria-label="Close">Close</button>
+            </div>
+            <!-- Fixed-size card area: #deck-content scrolls internally so the popup itself never resizes between a
+                 short card and a long one, and "Show answer" stays put instead of jumping around. -->
+            <div class="deck-card">
+              <div class="deck-content" id="deck-content">
+                <div class="chips" id="deck-chips"></div>
+                <p class="deck-question" id="deck-question"></p>
+                <div class="deck-answer" id="deck-answer" hidden></div>
+              </div>
+              <button class="btn btn-small" id="deck-reveal" type="button">Show answer</button>
+            </div>
+            <div class="deck-foot">
+              <button class="link-btn" id="deck-prev" type="button">&larr; Previous</button>
+              <span class="count-hint" id="deck-progress" aria-live="polite"></span>
+              <button class="link-btn danger" id="deck-delete" type="button">Delete card</button>
+              <button class="link-btn" id="deck-next" type="button">Next &rarr;</button>
+            </div>
+          </dialog>
+
           <p class="portal-note">Cards are for educational purposes only and should not be used to guide clinical practice. Guideline references are generated by AI and should be checked against the original source.</p>
         </div>
-      </div>
-    </section>
-
-    <!-- Hero: headline and call-to-action on the left, an illustrated stack of flashcards on the right -->
-    <section class="hero">
-      <div class="container hero-inner">
-        <div class="hero-copy">
-          <p class="eyebrow">Study smarter, not longer</p>
-          <h2 class="hero-title">Your whole medical curriculum, <span class="accent">one deck at a time.</span></h2>
-          <p class="lead">MedDeck turns dense clinical material into focused, bite-sized decks, then schedules every review so what you learn actually sticks.</p>
-          <div class="actions">
-            <a class="btn" href="#cta">Get early access</a>
-            <a class="btn btn-ghost" href="#how">See how it works</a>
-          </div>
-          <ul class="trust">
-            <li>Spaced repetition built in</li>
-            <li>Works on any device</li>
-            <li>Free to try</li>
-          </ul>
-        </div>
-
-        <!-- Decorative sample card (hidden from screen readers): three stacked layers, styled to echo the logo -->
-        <div class="hero-art" aria-hidden="true">
-          <div class="card card-3"></div>
-          <div class="card card-2"></div>
-          <div class="card card-1">
-            <span class="tag">Cardiology</span>
-            <p class="q">Which artery most commonly supplies the SA node?</p>
-            <div class="answer">Right coronary artery <small>(~60%)</small></div>
-            <div class="rate">
-              <span>Again</span><span>Good</span><span class="on">Easy</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Three short headline facts in a strip below the hero -->
-    <section class="stats">
-      <div class="container stats-inner">
-        <div><strong>10 min</strong><span>a day is enough to build a habit</span></div>
-        <div><strong>Every topic</strong><span>organised into decks you can share</span></div>
-        <div><strong>Zero clutter</strong><span>just the next card that matters</span></div>
-      </div>
-    </section>
-
-    <!-- Features: a grid of cards, each with an inline SVG icon, a title and a sentence -->
-    <section id="features" class="section">
-      <div class="container">
-        <h2>Built for the way clinicians learn</h2>
-        <p class="section-lead">Everything you need to go from lecture notes to exam-ready recall.</p>
-        <div class="grid">
-          <article class="feature">
-            <div class="icon">
-              <svg viewBox="0 0 24 24"><path d="M12 8v4l3 2M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg>
-            </div>
-            <h3>Spaced repetition</h3>
-            <p>Reviews arrive right before you'd forget, so your time goes to the cards that need it most.</p>
-          </article>
-          <article class="feature">
-            <div class="icon">
-              <svg viewBox="0 0 24 24"><rect x="3" y="7" width="14" height="12" rx="2"/><path d="M7 4h12a2 2 0 0 1 2 2v10"/></svg>
-            </div>
-            <h3>Organised decks</h3>
-            <p>Group cards by system, rotation or exam. Nest decks, tag topics and find anything in seconds.</p>
-          </article>
-          <article class="feature">
-            <div class="icon">
-              <svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>
-            </div>
-            <h3>Progress you can see</h3>
-            <p>Track streaks, retention and weak spots so you always know where to focus next.</p>
-          </article>
-          <article class="feature">
-            <div class="icon">
-              <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 14.3c.6-.2 1.3-.3 2-.3 2.2 0 4 1.8 4 4"/></svg>
-            </div>
-            <h3>Share with your cohort</h3>
-            <p>Build decks together and pass on the ones that helped you, so nobody starts from scratch.</p>
-          </article>
-          <article class="feature">
-            <div class="icon">
-              <svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
-            </div>
-            <h3>Study anywhere</h3>
-            <p>Between patients, on the train or in the library. Your decks follow you on every device.</p>
-          </article>
-          <article class="feature">
-            <div class="icon">
-              <svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
-            </div>
-            <h3>Private by default</h3>
-            <p>Your decks and study data belong to you. Share only what you choose to.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- How it works: three numbered steps -->
-    <section id="how" class="section alt">
-      <div class="container">
-        <h2>How it works</h2>
-        <p class="section-lead">From first card to long-term memory in three steps.</p>
-        <ol class="steps">
-          <li>
-            <span class="num">1</span>
-            <h3>Build your deck</h3>
-            <p>Create cards or import material from your notes and courses.</p>
-          </li>
-          <li>
-            <span class="num">2</span>
-            <h3>Study daily</h3>
-            <p>Answer a short session of due cards and rate how well you recalled each one.</p>
-          </li>
-          <li>
-            <span class="num">3</span>
-            <h3>Remember for good</h3>
-            <p>MedDeck adapts the schedule to you, so knowledge is ready on exam day and on the ward.</p>
-          </li>
-        </ol>
-      </div>
-    </section>
-
-    <!-- FAQ: <details> elements expand and collapse natively, no JavaScript needed -->
-    <section id="faq" class="section">
-      <div class="container narrow">
-        <h2>Questions, answered</h2>
-        <details>
-          <summary>Who is MedDeck for?</summary>
-          <p>Medical, nursing and allied health students, and any clinician who wants to keep their knowledge sharp.</p>
-        </details>
-        <details>
-          <summary>How much does it cost?</summary>
-          <p>You can start for free. Pricing details will be announced before launch.</p>
-        </details>
-        <details>
-          <summary>Does it work offline?</summary>
-          <p>Offline study is on our roadmap so you can review anywhere, connected or not.</p>
-        </details>
-        <details>
-          <summary>Is this medical advice?</summary>
-          <p>No. MedDeck is a study tool and is not a substitute for clinical judgement or official guidelines.</p>
-        </details>
-      </div>
-    </section>
-
-    <!-- Closing call-to-action with an email box. It is a placeholder for now: see script.js, nothing is stored yet. -->
-    <section id="cta" class="cta">
-      <div class="container cta-inner">
-        <h2>Ready to make it stick?</h2>
-        <p>Join the early access list and be first to try MedDeck.</p>
-        <form class="signup" novalidate>
-          <label class="sr-only" for="email">Email address</label>
-          <input id="email" type="email" placeholder="you@example.com" autocomplete="email" required>
-          <button class="btn btn-light" type="submit">Notify me</button>
-        </form>
-        <p class="form-msg" role="status" aria-live="polite"></p>
       </div>
     </section>
   </main>
@@ -381,8 +238,8 @@
     </div>
   </footer>
 
-  <!-- script.js: page behaviour (year, email form). config.js and the Supabase library define globals that the
-       module scripts read (authNav.js for the header, portal.js for the upload section). -->
+  <!-- script.js: keeps the footer's copyright year current. config.js and the Supabase library define globals
+       that the module scripts read (authNav.js for the header, portal.js for the upload section). -->
   <script src="script.js"></script>
   <script src="config.js"></script>
   <script src="vendor/supabase.js"></script>

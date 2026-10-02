@@ -1,29 +1,26 @@
 /* Styles for the upload section of the homepage (#upload in index.html). Uses the colour variables from styles.css. */
 
 /* Section layout and headings */
-.upload { padding: 48px 0 72px; }
-.upload .upload-title { font-size: clamp(1.8rem, 3.5vw, 2.4rem); font-weight: 800; }
-.upload h2 { font-size: 1.3rem; font-weight: 700; margin: 48px 0 12px; }
-.portal-lead { color: var(--muted); margin: 10px 0 28px; }
+.upload { padding: 32px 0 56px; }
+.upload .upload-title { font-size: 1.6rem; font-weight: 700; }
+.upload h2 { font-size: 1.2rem; font-weight: 700; margin: 40px 0 12px; }
+.portal-lead { color: var(--muted); margin: 8px 0 24px; }
 .portal-note { color: var(--muted); font-size: .8rem; margin-top: 10px; }
 
 /* Shown instead of the tool when the visitor isn't signed in */
-.gate { padding: 32px 24px; text-align: center; border: 2px dashed var(--blue-mid); border-radius: var(--radius); background: var(--bg-alt); }
+.gate { padding: 24px; text-align: center; border: 1px solid var(--line); background: var(--bg-alt); }
 .gate p { color: var(--muted); }
 .gate-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
 .gate-actions[hidden] { display: none; }
-.gate-actions .btn { color: #fff; }
-.gate-actions .btn-ghost { color: var(--blue); }
-.gate-actions .btn-ghost:hover { color: #fff; }
 
 /* Advanced settings popup (a native <dialog>; ::backdrop dims the page behind it) */
 .dialog {
   width: min(520px, calc(100% - 32px)); max-height: calc(100vh - 32px); overflow-y: auto;
-  padding: 28px; border: 1px solid var(--line); border-radius: var(--radius);
-  background: var(--bg); color: var(--ink); box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .5);
+  padding: 24px; border: 1px solid var(--line);
+  background: var(--bg); color: var(--ink);
 }
-.dialog::backdrop { background: rgba(11, 18, 32, .55); }
-.dialog h3 { font-size: 1.3rem; font-weight: 800; }
+.dialog::backdrop { background: rgba(0, 0, 0, .4); }
+.dialog h3 { font-size: 1.2rem; font-weight: 700; }
 .dialog-field { display: grid; gap: 8px; margin-top: 20px; }
 .dialog-label { font-weight: 600; }
 .dialog-label .count-hint { font-weight: 400; }
@@ -31,11 +28,11 @@
 /* Course and year dropdowns side by side; they stack on phones (see the media query below) */
 .year-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .dialog select, .dialog textarea {
-  width: 100%; padding: 10px 14px; border: 2px solid var(--line); border-radius: 12px;
+  width: 100%; padding: 10px 14px; border: 1px solid var(--line);
   background: var(--bg); color: var(--ink); font: inherit; font-size: .92rem;
 }
 .dialog textarea { resize: vertical; line-height: 1.5; }
-.dialog select:focus, .dialog textarea:focus { outline: none; border-color: var(--blue); background: var(--blue-light); }
+.dialog select:focus, .dialog textarea:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
 .dialog .context .count-hint { justify-self: end; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 26px; }
 
@@ -46,53 +43,51 @@
 .text-box { display: grid; gap: 10px; }
 .text-box textarea {
   width: 100%; min-height: 220px; resize: vertical; padding: 16px 18px;
-  border: 2px solid var(--blue-mid); border-radius: var(--radius);
+  border: 1px solid var(--line);
   background: var(--bg-alt); color: var(--ink); font: inherit; font-size: .95rem; line-height: 1.5;
 }
-.text-box textarea:focus { outline: none; border-color: var(--blue); background: var(--blue-light); }
+.text-box textarea:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
 .text-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
-.text-actions .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+.text-actions .btn:disabled { opacity: .5; cursor: not-allowed; }
 
-/* "Cards to generate" row: label, a pill-shaped stepper (- [number] +), and a hint */
+/* "Cards to generate" row: label, a stepper (- [number] +), and a hint */
 .count { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
 .count label { font-weight: 600; }
 .count-hint { color: var(--muted); font-size: .8rem; }
-.stepper { display: inline-flex; align-items: stretch; border: 2px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--bg); }
-.stepper button { width: 40px; border: 0; background: transparent; color: var(--blue); font: inherit; font-size: 1.2rem; font-weight: 700; cursor: pointer; }
-.stepper button:hover { background: var(--blue-light); }
+.stepper { display: inline-flex; align-items: stretch; border: 1px solid var(--line); overflow: hidden; background: var(--bg); }
+.stepper button { width: 36px; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 1.1rem; font-weight: 700; cursor: pointer; }
+.stepper button:hover { background: var(--bg-alt); }
 /* Number field: the -moz/-webkit rules below hide the browser's built-in spinner arrows, since we have our own buttons */
-.stepper input { width: 56px; border: 0; border-inline: 2px solid var(--line); text-align: center; font: inherit; font-weight: 600; color: var(--ink); background: transparent; padding: 8px 0; -moz-appearance: textfield; }
+.stepper input { width: 52px; border: 0; border-inline: 1px solid var(--line); text-align: center; font: inherit; font-weight: 600; color: var(--ink); background: transparent; padding: 8px 0; -moz-appearance: textfield; }
 .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.stepper input:focus { outline: none; background: var(--blue-light); }
+.stepper input:focus { outline: none; background: var(--bg-alt); }
 
 /* Clinical / Preclinical radio buttons (they reuse the .count row layout; the label rule there is overridden for the options) */
 .focus-title { font-weight: 600; }
 .focus .radio { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer; }
-.focus .radio input { accent-color: var(--blue); width: 16px; height: 16px; margin: 0; cursor: pointer; }
+.focus .radio input { width: 16px; height: 16px; margin: 0; cursor: pointer; }
 
 /* Drag-and-drop area. `.over` is added by JS while a file is being dragged over it. */
 .drop {
   display: grid; justify-items: center; gap: 6px; text-align: center;
-  padding: 40px 24px; border: 2px dashed var(--blue-mid); border-radius: var(--radius);
-  background: var(--bg-alt); cursor: pointer; transition: background .15s, border-color .15s;
+  padding: 32px 24px; border: 1px dashed var(--line);
+  background: var(--bg-alt); cursor: pointer;
 }
 /* :focus-within highlights the zone when the (visually hidden) file input is focused via keyboard */
-.drop:hover, .drop.over, .drop:focus-within { background: var(--blue-light); border-color: var(--blue); }
-.drop svg { width: 36px; height: 36px; fill: none; stroke: var(--blue); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.drop:hover, .drop.over, .drop:focus-within { border-color: var(--ink); }
+.drop svg { width: 32px; height: 32px; fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .drop span { color: var(--muted); font-size: .85rem; }
 
 /* Upload progress queue (one line per file being uploaded); data-state is set by JS to "done" or "error" */
 .queue, .files { list-style: none; padding: 0; margin: 0; }
 .queue { margin-top: 16px; display: grid; gap: 8px; }
-.queue li { display: flex; justify-content: space-between; gap: 16px; font-size: .9rem; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; }
+.queue li { display: flex; justify-content: space-between; gap: 16px; font-size: .9rem; padding: 10px 14px; border: 1px solid var(--line); }
 .queue .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .queue .state { flex: none; font-weight: 600; color: var(--muted); }
-.queue li[data-state="done"] .state { color: #1f9d5a; }
-.queue li[data-state="error"] .state { color: #d64545; }
 
 /* The Generate button and the line beside it saying how many files are waiting */
 .generate { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin-top: 20px; }
-.generate .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+.generate .btn:disabled { opacity: .5; cursor: not-allowed; }
 .generate-hint { color: var(--muted); font-size: .9rem; }
 
 /* "Your uploads" list: file name and date on the left, status badge on the right */
@@ -102,72 +97,76 @@
 .file-name { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .file-meta { color: var(--muted); font-size: .8rem; }
 .file-state { display: flex; align-items: center; gap: 10px; flex: none; flex-wrap: wrap; justify-content: flex-end; max-width: 55%; }
-/* Status badge; colour depends on the row's data-status (blue by default, green when done, red when failed) */
-.badge { font-size: .8rem; font-weight: 700; padding: 4px 12px; border-radius: 999px; background: var(--blue-light); color: var(--blue); }
-.files li[data-status="done"] .badge { background: #dff5e8; color: #1f7a48; }
-.files li[data-status="failed"] .badge { background: #fbe4e4; color: #b03636; }
+/* Status badge, plain text in a bordered box */
+.badge { font-size: .8rem; font-weight: 700; padding: 3px 10px; border: 1px solid var(--line); }
 /* Spinning ring shown in front of the badge text while cards are being generated */
 .badge.busy::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 8px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -1px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.file-error { color: #d64545; font-size: .8rem; }
+.file-error { color: var(--ink); font-size: .8rem; font-style: italic; }
 
 /* Cards toolbar: search box and dropdowns for filtering and grouping */
 .toolbar { display: grid; gap: 10px; margin-bottom: 18px; }
 .toolbar-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
-.toolbar input[type="search"] { flex: 1; min-width: 200px; padding: 10px 18px; border: 2px solid var(--line); border-radius: 999px; background: var(--bg); color: var(--ink); font: inherit; font-size: .92rem; }
-.toolbar select { padding: 8px 12px; border: 2px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); font: inherit; font-size: .88rem; }
-.toolbar input:focus, .toolbar select:focus { outline: none; border-color: var(--blue); background: var(--blue-light); }
+.toolbar input[type="search"] { flex: 1; min-width: 200px; padding: 10px 14px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: .92rem; }
+.toolbar select { padding: 8px 12px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: .88rem; }
+.toolbar input:focus, .toolbar select:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
 .toolbar-field { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 600; }
 .toolbar-field[hidden], .toolbar .link-btn[hidden] { display: none; }
 .toolbar-row .count-hint { margin-right: auto; }
 
-/* Groups of cards: each is a collapsible box with a count; cards inside sit under topic headings */
-.group { border: 1px solid var(--line); border-radius: 14px; background: var(--bg-alt); padding: 0 18px; margin: 0 0 14px; }
-/* Cancels the global `details:first-of-type` margin / top border from styles.css, like .card-item below */
-.group:first-of-type { margin-top: 0; border-top: 1px solid var(--line); }
-.group > summary { padding: 16px 0; font-size: 1.05rem; font-weight: 700; justify-content: flex-start; }
-.group > summary::after { margin-left: auto; }
-.group-count { font-size: .78rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--blue-light); color: var(--blue); margin-left: 10px; }
-.group-body { padding-bottom: 14px; }
-.topic + .topic { margin-top: 6px; }
-.topic-name { margin: 12px 0 8px; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-
-/* Card labels (subject, topic, difficulty, type) shown as small pills under the question */
-.card-q { display: grid; gap: 8px; }
+/* Card labels (subject, topic, difficulty, type) shown as small tags */
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { font-size: .72rem; font-weight: 700; line-height: 1.5; padding: 1px 10px; border-radius: 999px; background: var(--bg-alt); color: var(--muted); border: 1px solid var(--line); }
-.chip-subject { background: var(--blue-light); color: var(--blue); border-color: transparent; }
-.chip-easy { background: #dff5e8; color: #1f7a48; border-color: transparent; }
-.chip-medium { background: #fdf0d5; color: #8a5a00; border-color: transparent; }
-.chip-difficult { background: #fbe4e4; color: #b03636; border-color: transparent; }
+.chip { font-size: .72rem; font-weight: 700; line-height: 1.5; padding: 1px 8px; background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
+.chip-subject { font-style: normal; }
+.chip-easy, .chip-medium, .chip-difficult { border-color: var(--line); }
 
-/* "Your cards" list: each row is a bordered <details> that expands to show the answer, with a Delete button beside it */
-.cards { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
-.card-row { display: flex; align-items: flex-start; gap: 10px; }
-.card-row .card-item { flex: 1; min-width: 0; }
-.card-row .link-btn { flex: none; margin-top: 10px; }
-.card-item { border: 1px solid var(--line); border-radius: 12px; padding: 0 18px; background: var(--bg); }
-/* Cancels the global `details:first-of-type` margin from styles.css, which would otherwise space every card 40px down */
-.card-item:first-of-type { margin-top: 0; border-top: 1px solid var(--line); }
-.card-item summary { padding: 14px 0; font-size: 1rem; }
-.card-body { padding-bottom: 16px; display: grid; gap: 8px; font-size: .92rem; }
-.card-body p { margin: 0; color: var(--ink); }
-.card-answer { color: var(--blue); }
+/* "Your cards" folders: one per group (subject, source, difficulty or type). Clicking one opens #deck-dialog. */
+.folder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+.folder { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 18px; border: 1px solid var(--line); background: var(--bg-alt); font: inherit; color: var(--ink); text-align: left; cursor: pointer; }
+.folder:hover { border-color: var(--ink); }
+.folder-icon { width: 30px; height: 30px; fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.folder-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.folder-count { color: var(--muted); font-size: .8rem; }
+
+/* The folder viewer popup: one card at a time, with Previous / Next and a progress count. Its size is fixed
+   (.deck-card has a set height) so the popup stays put as you move between short and long cards; only the card's
+   own content scrolls (#deck-content) when it doesn't fit, and "Show answer" always stays in the same place.
+   Centered explicitly, because the browser's own centering trick for <dialog> only kicks in for its default
+   `display: block`, and turning it into a flex column here stops that from working.
+   The layout only applies while the dialog is actually open ([open], set by showModal()/close()): an unqualified
+   `display: flex` would override the browser's own `dialog:not([open]) { display: none }` and leave the popup
+   visible (if oddly positioned) on the page at all times, open or not. */
+.deck-dialog { width: min(560px, calc(100% - 32px)); }
+.deck-dialog[open] {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;
+  display: flex; flex-direction: column;
+}
+.deck-head { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex: none; }
+.deck-head h3 { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.1rem; font-weight: 700; }
+.deck-card { border: 1px solid var(--line); padding: 20px; height: min(420px, 55vh); display: flex; flex-direction: column; gap: 16px; }
+.deck-content { flex: 1; min-height: 0; overflow-y: auto; display: grid; align-content: start; gap: 16px; }
+.deck-question { font-size: 1.1rem; font-weight: 600; }
+.deck-answer { border-top: 1px dashed var(--line); padding-top: 16px; display: grid; gap: 8px; font-size: .92rem; }
+.deck-answer[hidden] { display: none; }
+.deck-answer p { margin: 0; color: var(--ink); }
+.card-answer { font-weight: 600; }
 .card-source, .card-from { color: var(--muted); font-size: .82rem; }
-/* Small pill button (e.g. "Start"); the .danger variant is red, used for Delete */
-.link-btn { font: inherit; font-size: .85rem; font-weight: 600; padding: 6px 14px; border-radius: 999px; border: 2px solid var(--line); background: transparent; color: var(--blue); cursor: pointer; }
-.link-btn:hover { border-color: var(--blue); }
-.link-btn.danger { color: #d64545; }
-.link-btn.danger:hover { border-color: #d64545; }
+#deck-reveal { flex: none; align-self: flex-start; }
+.deck-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 20px; flex: none; }
+/* Small bordered text button (e.g. "Previous"); the .danger variant is used for Delete */
+.link-btn { font: inherit; font-size: .85rem; font-weight: 600; padding: 5px 12px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; }
+.link-btn:hover { border-color: var(--ink); }
+.link-btn.danger { text-decoration: underline; }
 .link-btn:disabled { opacity: .5; cursor: not-allowed; }
 
 /* Empty / loading text and the error banner */
 .portal-empty { color: var(--muted); }
-.portal-error { color: #d64545; font-weight: 600; margin-bottom: 8px; }
+.portal-error { color: var(--ink); font-weight: 600; margin-bottom: 8px; }
 
-/* Phones: let the file name take a full row, with the status underneath */
+/* Phones: let the file name take a full row, with the status underneath; stack the deck viewer's footer buttons */
 @media (max-width: 640px) {
   .year-row { grid-template-columns: 1fr; }
   .files li { flex-wrap: wrap; }
   .file-info { flex-basis: 100%; }
+  .deck-foot { flex-wrap: wrap; justify-content: center; }
 }

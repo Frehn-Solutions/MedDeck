@@ -10,7 +10,7 @@
 //      -> the generated cards are shown.
 import { isConfigured, isMember, supabase } from "./supabaseClient.js";
 import { discardMaterial, typeOf, uploadMaterial, validate } from "./storage.js";
-import { createUpload, deleteCard, deleteUpload, listCards, listUploads, startProcessing } from "./uploads.js";
+import { createUpload, deleteCard, deleteUpload, exportAnki, listCards, listUploads, startProcessing } from "./uploads.js";
 
 // Page elements, looked up once.
 const gate = document.getElementById("gate"); // shown instead of the tool when signed out
@@ -414,15 +414,16 @@ const ASPECT_LABELS = {
   fundamentals: "Fundamentals",
 };
 const UNSORTED = "Unsorted"; // subject shown for cards without one
-const NO_TOPIC = "General"; // topic group for cards without one
-const FALLBACK_LABELS = new Set([UNSORTED, NO_TOPIC, "Other", "Not rated", "Not set", "Unknown source"]); // always sorted last
+const UNKNOWN_MATERIAL = "Unknown material"; // shown for cards whose upload no longer has a name to show
+const FALLBACK_LABELS = new Set([UNSORTED, "Other", "Not rated", "Not set", UNKNOWN_MATERIAL]); // always sorted last
 
-// The value of a card for each thing it can be filtered or grouped by, as the text shown to the user.
+// The value of a card for each thing it can be filtered or grouped by, as the text shown to the user. "source" is
+// the uploaded material (file or pasted text) the card was generated from, i.e. its upload's file name.
 const FACETS = {
   subject: (card) => card.content.subject || UNSORTED,
   difficulty: (card) => DIFFICULTY_LABELS[card.content.difficulty] || "Not rated",
   aspect: (card) => ASPECT_LABELS[card.content.aspect] || "Not set",
-  source: (card) => card.uploads?.file_name || "Unknown source",
+  source: (card) => card.uploads?.file_name || UNKNOWN_MATERIAL,
 };
 const filterSelects = {
   subject: document.getElementById("filter-subject"),
@@ -435,13 +436,28 @@ const cardSearch = document.getElementById("card-search");
 const groupSelect = document.getElementById("group-by");
 const filterClear = document.getElementById("filter-clear");
 const cardsShowing = document.getElementById("cards-showing");
-const groupsExpand = document.getElementById("groups-expand");
-const groupsCollapse = document.getElementById("groups-collapse");
+const exportAllBtn = document.getElementById("export-all"); // downloads every currently-visible card as one deck
+
+// The folder viewer: a popup (native <dialog>) that steps through one folder's cards at a time.
+const deckDialog = document.getElementById("deck-dialog");
+const deckTitle = document.getElementById("deck-title");
+const deckExport = document.getElementById("deck-export"); // downloads just this folder's cards
+const deckClose = document.getElementById("deck-close");
+const deckContent = document.getElementById("deck-content"); // scrolls internally so the popup itself stays one size
+const deckChips = document.getElementById("deck-chips");
+const deckQuestion = document.getElementById("deck-question");
+const deckAnswer = document.getElementById("deck-answer");
+const deckReveal = document.getElementById("deck-reveal");
+const deckPrev = document.getElementById("deck-prev");
+const deckNext = document.getElementById("deck-next");
+const deckDelete = document.getElementById("deck-delete");
+const deckProgress = document.getElementById("deck-progress");
 
 let allCards = []; // every card the user has, as loaded
 const filters = { subject: "", difficulty: "", aspect: "", source: "" }; // "" means All
 let searchText = "";
-const closedGroups = new Set(); // groups the user has collapsed, so redrawing keeps them collapsed
+let deckCards = []; // cards in the folder currently open in the viewer, most important first
+let deckIndex = 0; // position of the card currently shown in deckCards
 
 // Restore the last "Group by" choice (a convenience only, so a failure to read it is ignored).
 try {
@@ -488,7 +504,7 @@ function cardLine(className, label, value) {
   return p;
 }
 
-// The row of small coloured labels shown under a card's question.
+// The row of small labelled tags shown under a card's question.
 function chipRow(card) {
   const c = card.content;
   const row = el("span", "chips");
@@ -497,60 +513,6 @@ function chipRow(card) {
   if (DIFFICULTY_LABELS[c.difficulty]) row.append(el("span", `chip chip-${c.difficulty}`, DIFFICULTY_LABELS[c.difficulty]));
   if (ASPECT_LABELS[c.aspect]) row.append(el("span", "chip chip-aspect", ASPECT_LABELS[c.aspect]));
   return row;
-}
-
-// One card: a collapsible <details> (the question and its labels; the answer, reasoning, references and origin when
-// opened) with a Delete button beside it.
-// Cards made before the prompt changed have `source` instead of `guideline` / `material_reference`; both work.
-function cardRow(card) {
-  const c = card.content;
-  const li = el("li", "card-row");
-  const details = el("details", "card-item");
-  const summary = el("summary");
-  const question = el("span", "card-q");
-  question.append(el("span", "", c.front), chipRow(card));
-  summary.append(question);
-  details.append(summary);
-
-  const body = el("div", "card-body");
-  body.append(cardLine("card-answer", "Answer", c.back));
-  if (c.reasoning) body.append(cardLine("", "Why", c.reasoning));
-  if (c.guideline) body.append(cardLine("card-source", "Guideline", c.guideline));
-  if (c.source) body.append(cardLine("card-source", "Source", c.source)); // older cards
-  // Where it came from, e.g. "Tutorial 1.pdf · Page 3"
-  const from = [card.uploads?.file_name, c.material_reference || c.location].filter(Boolean).join(" · ");
-  if (from) body.append(el("p", "card-from", from));
-  if (c.tags?.length) body.append(el("p", "card-from", `Tags: ${c.tags.join(", ")}`));
-  if (c.priority) body.append(el("p", "card-from", `Priority ${c.priority}: ${PRIORITY_TEXT[c.priority - 1]}`));
-  details.append(body);
-
-  const remove = el("button", "link-btn danger", "Delete");
-  remove.type = "button";
-  remove.setAttribute("aria-label", `Delete card: ${c.front}`);
-  remove.addEventListener("click", async () => {
-    if (!window.confirm("Delete this card? This can't be undone.")) return;
-    showError("");
-    remove.disabled = true;
-    try {
-      await deleteCard(card.id);
-      allCards = allCards.filter((x) => x.id !== card.id);
-      fillFilters();
-      renderCards();
-    } catch (err) {
-      showError(err.message || "Could not delete the card.");
-      remove.disabled = false;
-    }
-  });
-
-  li.append(details, remove);
-  return li;
-}
-
-// A list of cards, most important first (priority 1 = core knowledge; a missing priority counts as 2).
-function cardList(cards) {
-  const ul = el("ul", "cards");
-  ul.append(...[...cards].sort((a, b) => (a.content.priority ?? 2) - (b.content.priority ?? 2)).map(cardRow));
-  return ul;
 }
 
 // Split cards into labelled groups: [[label, cards], ...] in display order. `keyOf` gives each card's group label.
@@ -564,37 +526,64 @@ function groupCards(cards, groupKey, keyOf) {
   return sortLabels(groupKey, groups.keys()).map((label) => [label, groups.get(label)]);
 }
 
-// A collapsible group with a count. With `byTopic`, its cards are split under topic headings.
-// While searching or filtering, groups are always open so matches can't be hidden inside a collapsed one.
-function groupElement(mode, label, cards, byTopic) {
-  const id = `${mode}|${label}`;
-  const details = el("details", "group");
-  details.open = isFiltering() || !closedGroups.has(id);
-  const summary = el("summary");
-  summary.append(el("span", "group-name", label), el("span", "group-count", String(cards.length)));
-  details.append(summary);
-  // Remember what the user opens and closes (ignored while filtering, when everything is forced open).
-  details.addEventListener("toggle", () => {
-    if (isFiltering()) return;
-    if (details.open) closedGroups.delete(id);
-    else closedGroups.add(id);
-  });
-
-  const body = el("div", "group-body");
-  if (byTopic) {
-    for (const [topic, items] of groupCards(cards, "topic", (card) => card.content.topic || NO_TOPIC)) {
-      const section = el("section", "topic");
-      section.append(el("h4", "topic-name", `${topic} (${items.length})`), cardList(items));
-      body.append(section);
-    }
-  } else {
-    body.append(cardList(cards));
-  }
-  details.append(body);
-  return details;
+// A simple folder icon, drawn once per folder button.
+function folderIcon() {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  svg.classList.add("folder-icon");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", "M3 7a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7z");
+  svg.append(path);
+  return svg;
 }
 
-// Redraw the toolbar state and the cards for the current filters, search and grouping.
+// A folder button for one group of cards. Clicking it opens the deck viewer on that group.
+function folderElement(label, cards) {
+  const btn = el("button", "folder");
+  btn.type = "button";
+  btn.append(folderIcon(), el("span", "folder-name", label), el("span", "folder-count", `${cards.length} card${cards.length === 1 ? "" : "s"}`));
+  btn.addEventListener("click", () => openDeck(label, cards));
+  return btn;
+}
+
+// Turn one card into the shape the server's /api/export-anki expects: a plain-text front and back (it escapes and
+// line-breaks them into Anki HTML fields itself) and a set of tags that mirror the folders it can be browsed in,
+// so the same subject / topic / difficulty / type organisation carries over into Anki's own tag browser.
+function cardToAnki(card) {
+  const c = card.content;
+  const lines = [`Answer: ${c.back}`];
+  if (c.reasoning) lines.push(`Why: ${c.reasoning}`);
+  if (c.guideline) lines.push(`Guideline: ${c.guideline}`);
+  if (c.source) lines.push(`Source: ${c.source}`); // older cards
+  const from = [card.uploads?.file_name, c.material_reference || c.location].filter(Boolean).join(" · ");
+  if (from) lines.push(from);
+
+  const tags = [];
+  if (c.subject) tags.push(`Subject::${c.subject}`);
+  if (c.topic) tags.push(`Topic::${c.topic}`);
+  if (DIFFICULTY_LABELS[c.difficulty]) tags.push(`Difficulty::${DIFFICULTY_LABELS[c.difficulty]}`);
+  if (ASPECT_LABELS[c.aspect]) tags.push(`Type::${ASPECT_LABELS[c.aspect]}`);
+  if (c.tags?.length) tags.push(...c.tags);
+
+  return { front: c.front, back: lines.join("\n\n"), tags };
+}
+
+// Build an Anki package from `cards` and save it as `deckName`.apkg, disabling `button` meanwhile.
+async function downloadAnki(button, deckName, cards) {
+  if (!cards.length) return;
+  showError("");
+  button.disabled = true;
+  try {
+    await exportAnki(deckName, cards.map(cardToAnki));
+  } catch (err) {
+    showError(err.message || "Couldn't build the Anki package.");
+  } finally {
+    button.disabled = false;
+  }
+}
+
+// Redraw the toolbar state and the folders for the current filters, search and grouping.
 function renderCards() {
   const n = allCards.length;
   cardsHeading.textContent = n ? `Your cards (${n})` : "Your cards";
@@ -608,18 +597,28 @@ function renderCards() {
   const mode = groupSelect.value;
   filterClear.hidden = !isFiltering();
   cardsShowing.textContent = isFiltering() ? `Showing ${visible.length} of ${n} card${n === 1 ? "" : "s"}` : "";
-  groupsExpand.hidden = groupsCollapse.hidden = mode === "none";
+  exportAllBtn.disabled = !visible.length;
+  exportAllBtn.textContent = `Download ${visible.length} as .apkg`;
+  exportAllBtn.onclick = () => downloadAnki(exportAllBtn, "MedDeck", visible);
 
   if (!visible.length) {
     cardsEl.append(el("p", "portal-empty", "No cards match your search and filters."));
-  } else if (mode === "none") {
-    cardsEl.append(cardList(visible));
+    return;
+  }
+
+  const grid = el("div", "folder-grid");
+  if (mode === "none") {
+    grid.append(folderElement("All cards", visible));
   } else {
-    // "Subject and topic" groups by subject with topic headings inside; the others are a single level of groups.
-    const groupKey = mode === "subject" ? "subject" : mode;
-    for (const [label, items] of groupCards(visible, groupKey, FACETS[groupKey])) {
-      cardsEl.append(groupElement(mode, label, items, mode === "subject"));
-    }
+    for (const [label, items] of groupCards(visible, mode, FACETS[mode])) grid.append(folderElement(label, items));
+  }
+  cardsEl.append(grid);
+
+  // Keep an open viewer in step with a card deleted or a search/filter narrowing what's in its folder.
+  if (deckDialog.open) {
+    deckCards = deckCards.filter((card) => visible.includes(card));
+    if (!deckCards.length) deckDialog.close();
+    else renderDeckCard();
   }
 }
 
@@ -648,15 +647,94 @@ filterClear.addEventListener("click", () => {
   fillFilters();
   renderCards();
 });
-// Expand / collapse every group at once. (Collapsing is remembered; both are moot while a search or filter is active.)
-groupsExpand.addEventListener("click", () => {
-  closedGroups.clear();
-  renderCards();
+
+// ---- Deck viewer ----
+
+// Open the popup on a folder's cards, most important first (priority 1 = core knowledge; a missing priority counts
+// as 2), starting from its first card.
+function openDeck(label, cards) {
+  deckCards = [...cards].sort((a, b) => (a.content.priority ?? 2) - (b.content.priority ?? 2));
+  deckIndex = 0;
+  deckTitle.textContent = label;
+  deckExport.onclick = () => downloadAnki(deckExport, label, deckCards);
+  renderDeckCard();
+  deckDialog.showModal();
+}
+
+// Show the card at `deckIndex`: its labels and question are visible immediately, the answer only after "Show answer".
+// Cards made before the prompt changed have `source` instead of `guideline` / `material_reference`; both work.
+function renderDeckCard() {
+  if (deckIndex >= deckCards.length) deckIndex = deckCards.length - 1;
+  const card = deckCards[deckIndex];
+  const c = card.content;
+
+  deckChips.replaceChildren(...chipRow(card).childNodes);
+  deckQuestion.textContent = c.front;
+
+  deckAnswer.hidden = true;
+  deckAnswer.replaceChildren(cardLine("card-answer", "Answer", c.back));
+  if (c.reasoning) deckAnswer.append(cardLine("", "Why", c.reasoning));
+  if (c.guideline) deckAnswer.append(cardLine("card-source", "Guideline", c.guideline));
+  if (c.source) deckAnswer.append(cardLine("card-source", "Source", c.source)); // older cards
+  // Where it came from, e.g. "Tutorial 1.pdf · Page 3"
+  const from = [card.uploads?.file_name, c.material_reference || c.location].filter(Boolean).join(" · ");
+  if (from) deckAnswer.append(el("p", "card-from", from));
+  if (c.tags?.length) deckAnswer.append(el("p", "card-from", `Tags: ${c.tags.join(", ")}`));
+  if (c.priority) deckAnswer.append(el("p", "card-from", `Priority ${c.priority}: ${PRIORITY_TEXT[c.priority - 1]}`));
+  deckReveal.textContent = "Show answer";
+
+  deckProgress.textContent = `${deckIndex + 1} of ${deckCards.length}`;
+  deckPrev.disabled = deckIndex === 0;
+  deckNext.disabled = deckIndex === deckCards.length - 1;
+  deckContent.scrollTop = 0; // always start a card scrolled to the top, however long the previous one was
+}
+
+deckReveal.addEventListener("click", () => {
+  deckAnswer.hidden = !deckAnswer.hidden;
+  deckReveal.textContent = deckAnswer.hidden ? "Show answer" : "Hide answer";
+  deckContent.scrollTop = 0;
 });
-groupsCollapse.addEventListener("click", () => {
-  for (const g of cardsEl.querySelectorAll("details.group")) closedGroups.add(`${groupSelect.value}|${g.querySelector(".group-name").textContent}`);
-  renderCards();
+deckPrev.addEventListener("click", () => {
+  if (deckIndex > 0) {
+    deckIndex--;
+    renderDeckCard();
+  }
 });
+deckNext.addEventListener("click", () => {
+  if (deckIndex < deckCards.length - 1) {
+    deckIndex++;
+    renderDeckCard();
+  }
+});
+// Left / right arrow keys step through the deck while the popup is open.
+deckDialog.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowLeft") deckPrev.click();
+  else if (e.key === "ArrowRight") deckNext.click();
+});
+
+deckDelete.addEventListener("click", async () => {
+  const card = deckCards[deckIndex];
+  if (!window.confirm("Delete this card? This can't be undone.")) return;
+  showError("");
+  deckDelete.disabled = true;
+  try {
+    await deleteCard(card.id);
+    allCards = allCards.filter((x) => x.id !== card.id);
+    deckCards = deckCards.filter((x) => x.id !== card.id);
+    fillFilters();
+    if (!deckCards.length) deckDialog.close();
+    else renderDeckCard();
+    renderCards();
+  } catch (err) {
+    showError(err.message || "Could not delete the card.");
+  } finally {
+    deckDelete.disabled = false;
+  }
+});
+
+deckClose.addEventListener("click", () => deckDialog.close());
+// Clicking the dimmed area outside the popup closes it (Escape does too, natively).
+deckDialog.addEventListener("click", (e) => e.target === deckDialog && deckDialog.close());
 
 // Load the user's cards and redraw the list.
 async function refreshCards() {

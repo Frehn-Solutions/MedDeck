@@ -14,6 +14,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.127.0",
     "@supabase/supabase-js": "^2.116.0",
+    "anki-apkg-export": "^4.0.3",
     "dotenv": "^18.0.1",
     "pdf-parse": "^2.4.5"
   }

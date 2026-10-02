@@ -31,7 +31,13 @@ function render(session) {
     portal.className = "btn btn-small";
     portal.href = "/#upload";
     portal.textContent = "My materials";
-    nav.append(portal);
+
+    const account = document.createElement("a");
+    account.className = "btn btn-small btn-ghost";
+    account.href = "account.html";
+    account.textContent = "Account";
+
+    nav.append(portal, account);
     nav.prepend(who);
     nav.append(button);
   } else {

@@ -10,6 +10,7 @@ const path = require("node:path");
 // Load secrets (Supabase keys, Anthropic key) from .env into process.env. `quiet` hides dotenv's startup tip.
 require("dotenv").config({ path: path.join(__dirname, ".env"), quiet: true });
 const { handleProcess } = require("./lib/uploadRoute");
+const { handleExport } = require("./lib/exportRoute");
 
 const PORT = process.env.PORT || 3000;
 // Everything the browser may request as a plain file lives under /public.
@@ -48,6 +49,15 @@ http
     const processMatch = req.method === "POST" && /^\/api\/uploads\/([0-9a-f-]{36})\/process$/.exec(urlPath);
     if (processMatch) {
       handleProcess(req, res, processMatch[1]).catch(() => {
+        if (!res.headersSent) res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Something went wrong." }));
+      });
+      return;
+    }
+
+    // API: POST /api/export-anki builds an Anki .apkg package from cards sent in the request body.
+    if (req.method === "POST" && urlPath === "/api/export-anki") {
+      handleExport(req, res).catch(() => {
         if (!res.headersSent) res.writeHead(500, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: "Something went wrong." }));
       });

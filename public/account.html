@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Account settings | MedDeck</title>
+  <meta name="description" content="Manage your MedDeck account.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <!-- Shared site styles first, then the sign-in / sign-up / account card styles -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="auth.css">
+</head>
+<body>
+  <!-- Minimal header: just the logo, linking home -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="/" aria-label="MedDeck home">
+        <img class="mark" src="logo-mark.svg" alt="">
+        <span>Med<span class="deck">Deck</span></span>
+      </a>
+      <!-- Signed-out buttons as a default; js/authNav.js swaps them when signed in. A visitor without an account
+           (or signed out) is redirected to the login page by js/account.js before they see the forms below. -->
+      <div class="auth-nav" id="auth-nav">
+        <a class="btn btn-small btn-ghost" href="login.html">Log in</a>
+        <a class="btn btn-small" href="signup.html">Sign up</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="auth">
+    <div class="auth-card wide">
+      <h1>Account settings</h1>
+      <p class="auth-lead">Manage your profile, password and study preferences.</p>
+
+      <!-- Profile: a display name (stored on the account) and the account's email (fixed here; Supabase handles
+           email changes separately and isn't wired up on this page). -->
+      <section class="auth-section">
+        <h2>Profile</h2>
+        <form id="profile-form">
+          <label for="display-name">Display name <span class="opt">(optional)</span></label>
+          <input id="display-name" name="displayName" type="text" autocomplete="name" maxlength="80">
+
+          <label for="email">Email address</label>
+          <input id="email" type="email" disabled>
+
+          <button class="btn" id="profile-save" type="submit">Save profile</button>
+          <p class="auth-msg" id="profile-msg" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <!-- Password: a new password is enough, since changing it only requires an active signed-in session. -->
+      <section class="auth-section">
+        <h2>Change password</h2>
+        <form id="password-form">
+          <label for="new-password">New password</label>
+          <input id="new-password" name="password" type="password" autocomplete="new-password" minlength="8" required aria-describedby="pw-hint">
+          <small id="pw-hint">At least 8 characters.</small>
+
+          <label for="confirm-password">Confirm new password</label>
+          <input id="confirm-password" name="confirm" type="password" autocomplete="new-password" required>
+
+          <button class="btn" id="password-save" type="submit">Update password</button>
+          <p class="auth-msg" id="password-msg" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <!-- Study preferences: a saved year group. Matches the course / year choices in the homepage's advanced
+           generation settings (see js/portal.js), but saved here so it's remembered on any device. -->
+      <section class="auth-section">
+        <h2>Study preferences</h2>
+        <form id="year-form">
+          <label for="year-course">Course</label>
+          <select id="year-course" name="course">
+            <option value="undergraduate">Undergraduate medicine</option>
+            <option value="gem">GEM (graduate entry)</option>
+          </select>
+
+          <label for="year-num">Year <span class="opt">(optional)</span></label>
+          <select id="year-num" name="year"></select>
+
+          <button class="btn" id="year-save" type="submit">Save preferences</button>
+          <p class="auth-msg" id="year-msg" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <p class="auth-alt"><a href="/#upload">Back to MedDeck</a></p>
+    </div>
+  </main>
+
+  <!-- Order matters: config.js and the Supabase library define globals that js/account.js reads. -->
+  <script src="config.js"></script>
+  <script src="vendor/supabase.js"></script>
+  <script type="module" src="js/authNav.js"></script>
+  <script type="module" src="js/account.js"></script>
+</body>
+</html>
